@@ -2,7 +2,7 @@ from openai import OpenAI
 import pandas as pd
 import os
 
-client = OpenAI(api_key='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')
+client = OpenAI(api_key='')
 
 with open("data.csv", "r") as f:
     csv_data = f.read()

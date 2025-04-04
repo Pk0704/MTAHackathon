@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_9bbd01d655cac0fa28bd2ee9e33db4a8 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.Default.css"/>
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_9bbd01d655cac0fa28bd2ee9e33db4a8" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_9bbd01d655cac0fa28bd2ee9e33db4a8 = L.map(
+                "map_9bbd01d655cac0fa28bd2ee9e33db4a8",
+                {
+                    center: [40.7128, -74.006],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 12,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_0e8b2a530afca3cd922da1f61eb17242 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_0e8b2a530afca3cd922da1f61eb17242.addTo(map_9bbd01d655cac0fa28bd2ee9e33db4a8);
+        
+    
+            var marker_cluster_8d36156aeb41b1ed7737672965bb72cb = L.markerClusterGroup(
+                {
+}
+            );
+        
+    
+            var marker_e386407d0c341cb5e390db74fd1c4759 = L.marker(
+                [40.7061, -73.9969],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_7cc28f27b5b135ccc9e753820e5d1c33 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_c0114e74d4bb6eb4ef35907163fdb7f4 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_0cf1e400acc5b634d3212540f7b75930 = $(`<div id="html_0cf1e400acc5b634d3212540f7b75930" style="width: 100.0%; height: 100.0%;">Brooklyn Bridge<br>Day: Friday<br>Excluded Entries: 256060</div>`)[0];
+                popup_c0114e74d4bb6eb4ef35907163fdb7f4.setContent(html_0cf1e400acc5b634d3212540f7b75930);
+            
+        
+
+        marker_e386407d0c341cb5e390db74fd1c4759.bindPopup(popup_c0114e74d4bb6eb4ef35907163fdb7f4)
+        ;
+
+        
+    
+    
+                marker_e386407d0c341cb5e390db74fd1c4759.setIcon(icon_7cc28f27b5b135ccc9e753820e5d1c33);
+            
+    
+            var marker_726d6834c703640b6ca4b3c09fe751dc = L.marker(
+                [40.7061, -73.9969],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_61228ccbebc55deff52d16ffb8249ee8 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_f455a4d1bc8857e02cbfcb3adc846de9 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_0105695227d857008dd0c09b941511f2 = $(`<div id="html_0105695227d857008dd0c09b941511f2" style="width: 100.0%; height: 100.0%;">Brooklyn Bridge<br>Day: Monday<br>Excluded Entries: 243107</div>`)[0];
+                popup_f455a4d1bc8857e02cbfcb3adc846de9.setContent(html_0105695227d857008dd0c09b941511f2);
+            
+        
+
+        marker_726d6834c703640b6ca4b3c09fe751dc.bindPopup(popup_f455a4d1bc8857e02cbfcb3adc846de9)
+        ;
+
+        
+    
+    
+                marker_726d6834c703640b6ca4b3c09fe751dc.setIcon(icon_61228ccbebc55deff52d16ffb8249ee8);
+            
+    
+            var marker_81a4f8ee616b9f408847b0477f085aca = L.marker(
+                [40.7061, -73.9969],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_d7f78ba7ee3ecda2c31ce7671988b8bc = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_1bfc41ff65d95aee3104759ade96d8ea = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_74df44d3413a81242fa84b7c2a741ab4 = $(`<div id="html_74df44d3413a81242fa84b7c2a741ab4" style="width: 100.0%; height: 100.0%;">Brooklyn Bridge<br>Day: Saturday<br>Excluded Entries: 246972</div>`)[0];
+                popup_1bfc41ff65d95aee3104759ade96d8ea.setContent(html_74df44d3413a81242fa84b7c2a741ab4);
+            
+        
+
+        marker_81a4f8ee616b9f408847b0477f085aca.bindPopup(popup_1bfc41ff65d95aee3104759ade96d8ea)
+        ;
+
+        
+    
+    
+                marker_81a4f8ee616b9f408847b0477f085aca.setIcon(icon_d7f78ba7ee3ecda2c31ce7671988b8bc);
+            
+    
+            var marker_100d8f1c5c1547c05d68d64a73fb4945 = L.marker(
+                [40.7061, -73.9969],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_fa69530310109ca3a2d523496a6f783d = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_2733df83979f97d131a60f2be88f976d = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_75d77fbec3b189677673d789d670b61b = $(`<div id="html_75d77fbec3b189677673d789d670b61b" style="width: 100.0%; height: 100.0%;">Brooklyn Bridge<br>Day: Sunday<br>Excluded Entries: 232618</div>`)[0];
+                popup_2733df83979f97d131a60f2be88f976d.setContent(html_75d77fbec3b189677673d789d670b61b);
+            
+        
+
+        marker_100d8f1c5c1547c05d68d64a73fb4945.bindPopup(popup_2733df83979f97d131a60f2be88f976d)
+        ;
+
+        
+    
+    
+                marker_100d8f1c5c1547c05d68d64a73fb4945.setIcon(icon_fa69530310109ca3a2d523496a6f783d);
+            
+    
+            var marker_a8330ccdef434c6275dda047e4fd81b7 = L.marker(
+                [40.7061, -73.9969],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_df10050f6129095b76f3982ecfd31e75 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_26c14c3b5cef0681cd1229a87382c442 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_4118a421568398eea4a53e0f7d186699 = $(`<div id="html_4118a421568398eea4a53e0f7d186699" style="width: 100.0%; height: 100.0%;">Brooklyn Bridge<br>Day: Thursday<br>Excluded Entries: 248425</div>`)[0];
+                popup_26c14c3b5cef0681cd1229a87382c442.setContent(html_4118a421568398eea4a53e0f7d186699);
+            
+        
+
+        marker_a8330ccdef434c6275dda047e4fd81b7.bindPopup(popup_26c14c3b5cef0681cd1229a87382c442)
+        ;
+
+        
+    
+    
+                marker_a8330ccdef434c6275dda047e4fd81b7.setIcon(icon_df10050f6129095b76f3982ecfd31e75);
+            
+    
+            var marker_848e5a1a691d4aca1affec69ef355527 = L.marker(
+                [40.7061, -73.9969],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_ae10e09882cbb0f106a928e36aa8a8cc = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_a671147c2d1ac47d1603aeb6ac98ffbb = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_4e5a6005b392f0c44339ae7455f42e92 = $(`<div id="html_4e5a6005b392f0c44339ae7455f42e92" style="width: 100.0%; height: 100.0%;">Brooklyn Bridge<br>Day: Tuesday<br>Excluded Entries: 241434</div>`)[0];
+                popup_a671147c2d1ac47d1603aeb6ac98ffbb.setContent(html_4e5a6005b392f0c44339ae7455f42e92);
+            
+        
+
+        marker_848e5a1a691d4aca1affec69ef355527.bindPopup(popup_a671147c2d1ac47d1603aeb6ac98ffbb)
+        ;
+
+        
+    
+    
+                marker_848e5a1a691d4aca1affec69ef355527.setIcon(icon_ae10e09882cbb0f106a928e36aa8a8cc);
+            
+    
+            var marker_2d389583f03b41e7a8ce593cdd56e8f0 = L.marker(
+                [40.7061, -73.9969],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_62509de2d3f6b02f3909168d318c7355 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_f65d43cd520747358c2e009d05d4fa1b = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_8ca101f042233f78f56ba029f3b7947a = $(`<div id="html_8ca101f042233f78f56ba029f3b7947a" style="width: 100.0%; height: 100.0%;">Brooklyn Bridge<br>Day: Wednesday<br>Excluded Entries: 244699</div>`)[0];
+                popup_f65d43cd520747358c2e009d05d4fa1b.setContent(html_8ca101f042233f78f56ba029f3b7947a);
+            
+        
+
+        marker_2d389583f03b41e7a8ce593cdd56e8f0.bindPopup(popup_f65d43cd520747358c2e009d05d4fa1b)
+        ;
+
+        
+    
+    
+                marker_2d389583f03b41e7a8ce593cdd56e8f0.setIcon(icon_62509de2d3f6b02f3909168d318c7355);
+            
+    
+            var marker_3282cb1de1752a56cbfb967c9d82f57c = L.marker(
+                [40.744, -73.9712],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_cc44348f911115bd5b370abe9c3856ea = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_822fda86a67f81b928a49cc3f3faa30f = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_d0fe3d50946f1757976cae3949e2c66c = $(`<div id="html_d0fe3d50946f1757976cae3949e2c66c" style="width: 100.0%; height: 100.0%;">Queens Midtown Tunnel<br>Day: Friday<br>Excluded Entries: 0</div>`)[0];
+                popup_822fda86a67f81b928a49cc3f3faa30f.setContent(html_d0fe3d50946f1757976cae3949e2c66c);
+            
+        
+
+        marker_3282cb1de1752a56cbfb967c9d82f57c.bindPopup(popup_822fda86a67f81b928a49cc3f3faa30f)
+        ;
+
+        
+    
+    
+                marker_3282cb1de1752a56cbfb967c9d82f57c.setIcon(icon_cc44348f911115bd5b370abe9c3856ea);
+            
+    
+            var marker_fa220478b943c0dc8c23a75ca4026bd5 = L.marker(
+                [40.744, -73.9712],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_7b6158338e7aa1dbdf7cbf3e0c2897f4 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_5bf1eb81dd1c26846143d2b4f17b4372 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_31f3aa1bc08f4ba6d515abd311eb7a32 = $(`<div id="html_31f3aa1bc08f4ba6d515abd311eb7a32" style="width: 100.0%; height: 100.0%;">Queens Midtown Tunnel<br>Day: Monday<br>Excluded Entries: 0</div>`)[0];
+                popup_5bf1eb81dd1c26846143d2b4f17b4372.setContent(html_31f3aa1bc08f4ba6d515abd311eb7a32);
+            
+        
+
+        marker_fa220478b943c0dc8c23a75ca4026bd5.bindPopup(popup_5bf1eb81dd1c26846143d2b4f17b4372)
+        ;
+
+        
+    
+    
+                marker_fa220478b943c0dc8c23a75ca4026bd5.setIcon(icon_7b6158338e7aa1dbdf7cbf3e0c2897f4);
+            
+    
+            var marker_193cfacce65661affe446d3cf5df7e62 = L.marker(
+                [40.744, -73.9712],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_fd83e7245fd0c71eda96ac3f48ad8041 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_20a58f52c8f648696c9f3fb2bf93469c = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_67db045b79ad1f4a310890bfe5ea7420 = $(`<div id="html_67db045b79ad1f4a310890bfe5ea7420" style="width: 100.0%; height: 100.0%;">Queens Midtown Tunnel<br>Day: Saturday<br>Excluded Entries: 0</div>`)[0];
+                popup_20a58f52c8f648696c9f3fb2bf93469c.setContent(html_67db045b79ad1f4a310890bfe5ea7420);
+            
+        
+
+        marker_193cfacce65661affe446d3cf5df7e62.bindPopup(popup_20a58f52c8f648696c9f3fb2bf93469c)
+        ;
+
+        
+    
+    
+                marker_193cfacce65661affe446d3cf5df7e62.setIcon(icon_fd83e7245fd0c71eda96ac3f48ad8041);
+            
+    
+            var marker_b52b6bb4c21a689e508cd3e2017174b6 = L.marker(
+                [40.744, -73.9712],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_929df64e5d0995cb544146729a524f89 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_087ecf754f06ddac3623ea5113115eb7 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_7410b5e6a0fe66c2d4d865f52937160a = $(`<div id="html_7410b5e6a0fe66c2d4d865f52937160a" style="width: 100.0%; height: 100.0%;">Queens Midtown Tunnel<br>Day: Sunday<br>Excluded Entries: 0</div>`)[0];
+                popup_087ecf754f06ddac3623ea5113115eb7.setContent(html_7410b5e6a0fe66c2d4d865f52937160a);
+            
+        
+
+        marker_b52b6bb4c21a689e508cd3e2017174b6.bindPopup(popup_087ecf754f06ddac3623ea5113115eb7)
+        ;
+
+        
+    
+    
+                marker_b52b6bb4c21a689e508cd3e2017174b6.setIcon(icon_929df64e5d0995cb544146729a524f89);
+            
+    
+            var marker_fdf97d3cc06b1327aae732ef62315899 = L.marker(
+                [40.744, -73.9712],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_d8693c54c64cdfb5dd7a4a60b347cfef = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_61ce0c7bfb78592860834430a82b50d6 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_786791b1959634d7bcda6d721044cdb1 = $(`<div id="html_786791b1959634d7bcda6d721044cdb1" style="width: 100.0%; height: 100.0%;">Queens Midtown Tunnel<br>Day: Thursday<br>Excluded Entries: 0</div>`)[0];
+                popup_61ce0c7bfb78592860834430a82b50d6.setContent(html_786791b1959634d7bcda6d721044cdb1);
+            
+        
+
+        marker_fdf97d3cc06b1327aae732ef62315899.bindPopup(popup_61ce0c7bfb78592860834430a82b50d6)
+        ;
+
+        
+    
+    
+                marker_fdf97d3cc06b1327aae732ef62315899.setIcon(icon_d8693c54c64cdfb5dd7a4a60b347cfef);
+            
+    
+            var marker_9522f4c22ae1978ba69b24735e02c019 = L.marker(
+                [40.744, -73.9712],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_fb4e5c2fedf6285b85c4521984de4976 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_22c80dc0c7b3eb1b0818e37c757514bc = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_af325f798194afb1bfed61bf2dde1c93 = $(`<div id="html_af325f798194afb1bfed61bf2dde1c93" style="width: 100.0%; height: 100.0%;">Queens Midtown Tunnel<br>Day: Tuesday<br>Excluded Entries: 0</div>`)[0];
+                popup_22c80dc0c7b3eb1b0818e37c757514bc.setContent(html_af325f798194afb1bfed61bf2dde1c93);
+            
+        
+
+        marker_9522f4c22ae1978ba69b24735e02c019.bindPopup(popup_22c80dc0c7b3eb1b0818e37c757514bc)
+        ;
+
+        
+    
+    
+                marker_9522f4c22ae1978ba69b24735e02c019.setIcon(icon_fb4e5c2fedf6285b85c4521984de4976);
+            
+    
+            var marker_f41e15bc10e37d389c6d8f32f495ad54 = L.marker(
+                [40.744, -73.9712],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_d85275877ec115c11b688d809cad3bd0 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_cf973bf85e1819197718c26314591ae5 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_e9234ef0d6973c6f8cda76b9b4a9ad7e = $(`<div id="html_e9234ef0d6973c6f8cda76b9b4a9ad7e" style="width: 100.0%; height: 100.0%;">Queens Midtown Tunnel<br>Day: Wednesday<br>Excluded Entries: 0</div>`)[0];
+                popup_cf973bf85e1819197718c26314591ae5.setContent(html_e9234ef0d6973c6f8cda76b9b4a9ad7e);
+            
+        
+
+        marker_f41e15bc10e37d389c6d8f32f495ad54.bindPopup(popup_cf973bf85e1819197718c26314591ae5)
+        ;
+
+        
+    
+    
+                marker_f41e15bc10e37d389c6d8f32f495ad54.setIcon(icon_d85275877ec115c11b688d809cad3bd0);
+            
+    
+            var marker_5a286b6af08fb00c5a4dd83895624921 = L.marker(
+                [40.757, -73.9542],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_11b5c2be51fdf337661ca22c0aed3d87 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_29dc7e619a695f482e0e79a3c7147574 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_2abc957084c2852b0387232a09db142a = $(`<div id="html_2abc957084c2852b0387232a09db142a" style="width: 100.0%; height: 100.0%;">Queensboro Bridge<br>Day: Friday<br>Excluded Entries: 0</div>`)[0];
+                popup_29dc7e619a695f482e0e79a3c7147574.setContent(html_2abc957084c2852b0387232a09db142a);
+            
+        
+
+        marker_5a286b6af08fb00c5a4dd83895624921.bindPopup(popup_29dc7e619a695f482e0e79a3c7147574)
+        ;
+
+        
+    
+    
+                marker_5a286b6af08fb00c5a4dd83895624921.setIcon(icon_11b5c2be51fdf337661ca22c0aed3d87);
+            
+    
+            var marker_0b18f588e38df17d29abdd3237ef5905 = L.marker(
+                [40.757, -73.9542],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_248963565abd72cec0ce05c5071015f8 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_209613eaa0f547e8b98d7866f001608b = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_1489969583f64cdb51545b0b6b9bb381 = $(`<div id="html_1489969583f64cdb51545b0b6b9bb381" style="width: 100.0%; height: 100.0%;">Queensboro Bridge<br>Day: Monday<br>Excluded Entries: 0</div>`)[0];
+                popup_209613eaa0f547e8b98d7866f001608b.setContent(html_1489969583f64cdb51545b0b6b9bb381);
+            
+        
+
+        marker_0b18f588e38df17d29abdd3237ef5905.bindPopup(popup_209613eaa0f547e8b98d7866f001608b)
+        ;
+
+        
+    
+    
+                marker_0b18f588e38df17d29abdd3237ef5905.setIcon(icon_248963565abd72cec0ce05c5071015f8);
+            
+    
+            var marker_23baad89e865871034a2592d4cfd34c5 = L.marker(
+                [40.757, -73.9542],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_c03400ebbc2ae6608d9ea4fb8a4cf0f2 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_57903e0ab28b8fcc14ae9bd01513782c = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_bc4a9b9e8f701af97e6868baec5717de = $(`<div id="html_bc4a9b9e8f701af97e6868baec5717de" style="width: 100.0%; height: 100.0%;">Queensboro Bridge<br>Day: Saturday<br>Excluded Entries: 0</div>`)[0];
+                popup_57903e0ab28b8fcc14ae9bd01513782c.setContent(html_bc4a9b9e8f701af97e6868baec5717de);
+            
+        
+
+        marker_23baad89e865871034a2592d4cfd34c5.bindPopup(popup_57903e0ab28b8fcc14ae9bd01513782c)
+        ;
+
+        
+    
+    
+                marker_23baad89e865871034a2592d4cfd34c5.setIcon(icon_c03400ebbc2ae6608d9ea4fb8a4cf0f2);
+            
+    
+            var marker_2d7b3aa6ec3cbf24061feec0cfb35fa2 = L.marker(
+                [40.757, -73.9542],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_761ec7ebefed4ceb2ce2eaecbaf58f57 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_90d74246a218b31dd3a291f0baa03e12 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_e6cad01b114f442a6b039bd518d5b04b = $(`<div id="html_e6cad01b114f442a6b039bd518d5b04b" style="width: 100.0%; height: 100.0%;">Queensboro Bridge<br>Day: Sunday<br>Excluded Entries: 0</div>`)[0];
+                popup_90d74246a218b31dd3a291f0baa03e12.setContent(html_e6cad01b114f442a6b039bd518d5b04b);
+            
+        
+
+        marker_2d7b3aa6ec3cbf24061feec0cfb35fa2.bindPopup(popup_90d74246a218b31dd3a291f0baa03e12)
+        ;
+
+        
+    
+    
+                marker_2d7b3aa6ec3cbf24061feec0cfb35fa2.setIcon(icon_761ec7ebefed4ceb2ce2eaecbaf58f57);
+            
+    
+            var marker_c3f5d707768a745052278882245544a3 = L.marker(
+                [40.757, -73.9542],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_eec85dc2102ad828481f90cddfb10fed = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_47214442f9b6ca42e41f0e36f34b8420 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_2248af525f2c8c875613602820daf41e = $(`<div id="html_2248af525f2c8c875613602820daf41e" style="width: 100.0%; height: 100.0%;">Queensboro Bridge<br>Day: Thursday<br>Excluded Entries: 0</div>`)[0];
+                popup_47214442f9b6ca42e41f0e36f34b8420.setContent(html_2248af525f2c8c875613602820daf41e);
+            
+        
+
+        marker_c3f5d707768a745052278882245544a3.bindPopup(popup_47214442f9b6ca42e41f0e36f34b8420)
+        ;
+
+        
+    
+    
+                marker_c3f5d707768a745052278882245544a3.setIcon(icon_eec85dc2102ad828481f90cddfb10fed);
+            
+    
+            var marker_fea1f69eb1f7475777e4ec778297aef3 = L.marker(
+                [40.757, -73.9542],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_6184fbb2b919eb25acc198f8705595b3 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_3dd6aee6beec0f5309d2c0565fdc140f = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_413a37afd00f4a254515492844b369ba = $(`<div id="html_413a37afd00f4a254515492844b369ba" style="width: 100.0%; height: 100.0%;">Queensboro Bridge<br>Day: Tuesday<br>Excluded Entries: 0</div>`)[0];
+                popup_3dd6aee6beec0f5309d2c0565fdc140f.setContent(html_413a37afd00f4a254515492844b369ba);
+            
+        
+
+        marker_fea1f69eb1f7475777e4ec778297aef3.bindPopup(popup_3dd6aee6beec0f5309d2c0565fdc140f)
+        ;
+
+        
+    
+    
+                marker_fea1f69eb1f7475777e4ec778297aef3.setIcon(icon_6184fbb2b919eb25acc198f8705595b3);
+            
+    
+            var marker_41561e326be04df6a746b826a18c2385 = L.marker(
+                [40.757, -73.9542],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_c8b3f3fd6e2820fcd98fa196639e8fdf = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_1c0d6611615bee36dbf9a9d487873b38 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_4a4c47b5ad4463699406a9c3490219e3 = $(`<div id="html_4a4c47b5ad4463699406a9c3490219e3" style="width: 100.0%; height: 100.0%;">Queensboro Bridge<br>Day: Wednesday<br>Excluded Entries: 0</div>`)[0];
+                popup_1c0d6611615bee36dbf9a9d487873b38.setContent(html_4a4c47b5ad4463699406a9c3490219e3);
+            
+        
+
+        marker_41561e326be04df6a746b826a18c2385.bindPopup(popup_1c0d6611615bee36dbf9a9d487873b38)
+        ;
+
+        
+    
+    
+                marker_41561e326be04df6a746b826a18c2385.setIcon(icon_c8b3f3fd6e2820fcd98fa196639e8fdf);
+            
+    
+            var marker_2fd8cb2f1ad8a84743c329afa2321a74 = L.marker(
+                [40.769, -73.982],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_e571848e071d65b485571adb27110b04 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_be8fc1da7422cbc19ef5ff67f3ba620e = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_bf42a264986b5d0a72f483cacc462d88 = $(`<div id="html_bf42a264986b5d0a72f483cacc462d88" style="width: 100.0%; height: 100.0%;">West 60th St<br>Day: Friday<br>Excluded Entries: 0</div>`)[0];
+                popup_be8fc1da7422cbc19ef5ff67f3ba620e.setContent(html_bf42a264986b5d0a72f483cacc462d88);
+            
+        
+
+        marker_2fd8cb2f1ad8a84743c329afa2321a74.bindPopup(popup_be8fc1da7422cbc19ef5ff67f3ba620e)
+        ;
+
+        
+    
+    
+                marker_2fd8cb2f1ad8a84743c329afa2321a74.setIcon(icon_e571848e071d65b485571adb27110b04);
+            
+    
+            var marker_bccf50a21af86dfae48bad6d124aa23d = L.marker(
+                [40.769, -73.982],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_2ece296d33366fcffb3983e31b8b8510 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_622c0af86a2ca2aaeeb44a4021637e0a = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_12e60b8ada2485ba5fc3148f4679e280 = $(`<div id="html_12e60b8ada2485ba5fc3148f4679e280" style="width: 100.0%; height: 100.0%;">West 60th St<br>Day: Monday<br>Excluded Entries: 0</div>`)[0];
+                popup_622c0af86a2ca2aaeeb44a4021637e0a.setContent(html_12e60b8ada2485ba5fc3148f4679e280);
+            
+        
+
+        marker_bccf50a21af86dfae48bad6d124aa23d.bindPopup(popup_622c0af86a2ca2aaeeb44a4021637e0a)
+        ;
+
+        
+    
+    
+                marker_bccf50a21af86dfae48bad6d124aa23d.setIcon(icon_2ece296d33366fcffb3983e31b8b8510);
+            
+    
+            var marker_088b10c1a175eb5cc63e99840aebbe8c = L.marker(
+                [40.769, -73.982],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_c1c779e8003936bf365534b0fddac70a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_b132519a12c6b072b1dfad4e2f8ad800 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_ec39d616c7e47daad7561ac163628fb7 = $(`<div id="html_ec39d616c7e47daad7561ac163628fb7" style="width: 100.0%; height: 100.0%;">West 60th St<br>Day: Saturday<br>Excluded Entries: 0</div>`)[0];
+                popup_b132519a12c6b072b1dfad4e2f8ad800.setContent(html_ec39d616c7e47daad7561ac163628fb7);
+            
+        
+
+        marker_088b10c1a175eb5cc63e99840aebbe8c.bindPopup(popup_b132519a12c6b072b1dfad4e2f8ad800)
+        ;
+
+        
+    
+    
+                marker_088b10c1a175eb5cc63e99840aebbe8c.setIcon(icon_c1c779e8003936bf365534b0fddac70a);
+            
+    
+            var marker_e1e4e40c404bf1cea8e94fe4e36958a9 = L.marker(
+                [40.769, -73.982],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_d7e4e38b19ff4badd59c111331a9c8f3 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_3fd3ff8690f9b48a3fd5aaef168cb5a8 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_2b67442471f35db9896476a9d9319cc2 = $(`<div id="html_2b67442471f35db9896476a9d9319cc2" style="width: 100.0%; height: 100.0%;">West 60th St<br>Day: Sunday<br>Excluded Entries: 0</div>`)[0];
+                popup_3fd3ff8690f9b48a3fd5aaef168cb5a8.setContent(html_2b67442471f35db9896476a9d9319cc2);
+            
+        
+
+        marker_e1e4e40c404bf1cea8e94fe4e36958a9.bindPopup(popup_3fd3ff8690f9b48a3fd5aaef168cb5a8)
+        ;
+
+        
+    
+    
+                marker_e1e4e40c404bf1cea8e94fe4e36958a9.setIcon(icon_d7e4e38b19ff4badd59c111331a9c8f3);
+            
+    
+            var marker_6a3c78cef27ba3d97cb38ac0042336e2 = L.marker(
+                [40.769, -73.982],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_9585d8f4c778453d057dc24efa7932ef = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_d07604256afb926078a84f4fea06a19a = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_f3a317fea84b2a767d2945474c48af2a = $(`<div id="html_f3a317fea84b2a767d2945474c48af2a" style="width: 100.0%; height: 100.0%;">West 60th St<br>Day: Thursday<br>Excluded Entries: 0</div>`)[0];
+                popup_d07604256afb926078a84f4fea06a19a.setContent(html_f3a317fea84b2a767d2945474c48af2a);
+            
+        
+
+        marker_6a3c78cef27ba3d97cb38ac0042336e2.bindPopup(popup_d07604256afb926078a84f4fea06a19a)
+        ;
+
+        
+    
+    
+                marker_6a3c78cef27ba3d97cb38ac0042336e2.setIcon(icon_9585d8f4c778453d057dc24efa7932ef);
+            
+    
+            var marker_d50c4c38b5afea2e6473f711d62941d8 = L.marker(
+                [40.769, -73.982],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_b5214695418317558e0be7c54c759d1b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_aca19056f7e1e53a810d531c54e8b7d8 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_1325a44589a6a5f98fe268e03698424d = $(`<div id="html_1325a44589a6a5f98fe268e03698424d" style="width: 100.0%; height: 100.0%;">West 60th St<br>Day: Tuesday<br>Excluded Entries: 0</div>`)[0];
+                popup_aca19056f7e1e53a810d531c54e8b7d8.setContent(html_1325a44589a6a5f98fe268e03698424d);
+            
+        
+
+        marker_d50c4c38b5afea2e6473f711d62941d8.bindPopup(popup_aca19056f7e1e53a810d531c54e8b7d8)
+        ;
+
+        
+    
+    
+                marker_d50c4c38b5afea2e6473f711d62941d8.setIcon(icon_b5214695418317558e0be7c54c759d1b);
+            
+    
+            var marker_9f2fa07fbea67452f6892155ea7cfe3b = L.marker(
+                [40.769, -73.982],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_70c9cd65d9bf0d6be859f723138a0692 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_824fccd5e0ce537117581d0b5496ca40 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_ab2686cad31386baf90f5f727b02fb7f = $(`<div id="html_ab2686cad31386baf90f5f727b02fb7f" style="width: 100.0%; height: 100.0%;">West 60th St<br>Day: Wednesday<br>Excluded Entries: 0</div>`)[0];
+                popup_824fccd5e0ce537117581d0b5496ca40.setContent(html_ab2686cad31386baf90f5f727b02fb7f);
+            
+        
+
+        marker_9f2fa07fbea67452f6892155ea7cfe3b.bindPopup(popup_824fccd5e0ce537117581d0b5496ca40)
+        ;
+
+        
+    
+    
+                marker_9f2fa07fbea67452f6892155ea7cfe3b.setIcon(icon_70c9cd65d9bf0d6be859f723138a0692);
+            
+    
+            var marker_2c1da8eb6f7cb3f258a6a70baacebc90 = L.marker(
+                [40.7711, -73.9882],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_70461ff26b2e1cd9cb23fddb87cb74dd = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_d877fa0853a708d587a96c38f834a090 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_3b843360a06a931de6f45585593b9f49 = $(`<div id="html_3b843360a06a931de6f45585593b9f49" style="width: 100.0%; height: 100.0%;">West Side Highway at 60th St<br>Day: Friday<br>Excluded Entries: 61832</div>`)[0];
+                popup_d877fa0853a708d587a96c38f834a090.setContent(html_3b843360a06a931de6f45585593b9f49);
+            
+        
+
+        marker_2c1da8eb6f7cb3f258a6a70baacebc90.bindPopup(popup_d877fa0853a708d587a96c38f834a090)
+        ;
+
+        
+    
+    
+                marker_2c1da8eb6f7cb3f258a6a70baacebc90.setIcon(icon_70461ff26b2e1cd9cb23fddb87cb74dd);
+            
+    
+            var marker_8c1b0fea2f32bec3d5a2dcb63c8f9f10 = L.marker(
+                [40.7711, -73.9882],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_9d8a132bfff580ab9fca6378f0dde219 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_2e35aa650deeaab001904ef867b5ed8f = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_024378a90eb0f4d31ab320af966d0b23 = $(`<div id="html_024378a90eb0f4d31ab320af966d0b23" style="width: 100.0%; height: 100.0%;">West Side Highway at 60th St<br>Day: Monday<br>Excluded Entries: 55221</div>`)[0];
+                popup_2e35aa650deeaab001904ef867b5ed8f.setContent(html_024378a90eb0f4d31ab320af966d0b23);
+            
+        
+
+        marker_8c1b0fea2f32bec3d5a2dcb63c8f9f10.bindPopup(popup_2e35aa650deeaab001904ef867b5ed8f)
+        ;
+
+        
+    
+    
+                marker_8c1b0fea2f32bec3d5a2dcb63c8f9f10.setIcon(icon_9d8a132bfff580ab9fca6378f0dde219);
+            
+    
+            var marker_6e4d986f08556c548cc8496c6e78b516 = L.marker(
+                [40.7711, -73.9882],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_721aafa4a74f0b2ed544a2e8bec76f5a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_e68cde4967e3d5bb00c0d9f5176101b3 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_0e63a791910f0a50d30a7dcd0938361b = $(`<div id="html_0e63a791910f0a50d30a7dcd0938361b" style="width: 100.0%; height: 100.0%;">West Side Highway at 60th St<br>Day: Saturday<br>Excluded Entries: 39651</div>`)[0];
+                popup_e68cde4967e3d5bb00c0d9f5176101b3.setContent(html_0e63a791910f0a50d30a7dcd0938361b);
+            
+        
+
+        marker_6e4d986f08556c548cc8496c6e78b516.bindPopup(popup_e68cde4967e3d5bb00c0d9f5176101b3)
+        ;
+
+        
+    
+    
+                marker_6e4d986f08556c548cc8496c6e78b516.setIcon(icon_721aafa4a74f0b2ed544a2e8bec76f5a);
+            
+    
+            var marker_caaf914123ef79a7d76d6b19bdda87f7 = L.marker(
+                [40.7711, -73.9882],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_cc1721c2c28c8ab266d13fdcc064a822 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_be98a8aed9e961bac61a638fb80d8513 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_53ddbb3076e7dca046b3a3341651f9e6 = $(`<div id="html_53ddbb3076e7dca046b3a3341651f9e6" style="width: 100.0%; height: 100.0%;">West Side Highway at 60th St<br>Day: Sunday<br>Excluded Entries: 36308</div>`)[0];
+                popup_be98a8aed9e961bac61a638fb80d8513.setContent(html_53ddbb3076e7dca046b3a3341651f9e6);
+            
+        
+
+        marker_caaf914123ef79a7d76d6b19bdda87f7.bindPopup(popup_be98a8aed9e961bac61a638fb80d8513)
+        ;
+
+        
+    
+    
+                marker_caaf914123ef79a7d76d6b19bdda87f7.setIcon(icon_cc1721c2c28c8ab266d13fdcc064a822);
+            
+    
+            var marker_5741ecff0ee6291ead438e1283f87da1 = L.marker(
+                [40.7711, -73.9882],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_fdf6271e03695d1d9239b64e7daf9354 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_6ce469fac52c227cf68f7ab795223f8f = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_41c92ce91ec645f0c3e22805d6e49998 = $(`<div id="html_41c92ce91ec645f0c3e22805d6e49998" style="width: 100.0%; height: 100.0%;">West Side Highway at 60th St<br>Day: Thursday<br>Excluded Entries: 63668</div>`)[0];
+                popup_6ce469fac52c227cf68f7ab795223f8f.setContent(html_41c92ce91ec645f0c3e22805d6e49998);
+            
+        
+
+        marker_5741ecff0ee6291ead438e1283f87da1.bindPopup(popup_6ce469fac52c227cf68f7ab795223f8f)
+        ;
+
+        
+    
+    
+                marker_5741ecff0ee6291ead438e1283f87da1.setIcon(icon_fdf6271e03695d1d9239b64e7daf9354);
+            
+    
+            var marker_7ede18446a54fd5dcb8037c59a8d68ed = L.marker(
+                [40.7711, -73.9882],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_f8c86b7d717a21f4793a0361a48af4e4 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_a5591121e03b66baab20e13409ee00e6 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_171492342087dde2e392fdfbc018dadb = $(`<div id="html_171492342087dde2e392fdfbc018dadb" style="width: 100.0%; height: 100.0%;">West Side Highway at 60th St<br>Day: Tuesday<br>Excluded Entries: 60175</div>`)[0];
+                popup_a5591121e03b66baab20e13409ee00e6.setContent(html_171492342087dde2e392fdfbc018dadb);
+            
+        
+
+        marker_7ede18446a54fd5dcb8037c59a8d68ed.bindPopup(popup_a5591121e03b66baab20e13409ee00e6)
+        ;
+
+        
+    
+    
+                marker_7ede18446a54fd5dcb8037c59a8d68ed.setIcon(icon_f8c86b7d717a21f4793a0361a48af4e4);
+            
+    
+            var marker_a1551038d1b7f8a71c256b49316ea0c6 = L.marker(
+                [40.7711, -73.9882],
+                {
+}
+            ).addTo(marker_cluster_8d36156aeb41b1ed7737672965bb72cb);
+        
+    
+            var icon_1c4c11c2e018e7713e2e558577ca378b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_b9326b997463171865536f9b97a96450 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_f43cc0e867cb26bbf908caf933d8d2e2 = $(`<div id="html_f43cc0e867cb26bbf908caf933d8d2e2" style="width: 100.0%; height: 100.0%;">West Side Highway at 60th St<br>Day: Wednesday<br>Excluded Entries: 62305</div>`)[0];
+                popup_b9326b997463171865536f9b97a96450.setContent(html_f43cc0e867cb26bbf908caf933d8d2e2);
+            
+        
+
+        marker_a1551038d1b7f8a71c256b49316ea0c6.bindPopup(popup_b9326b997463171865536f9b97a96450)
+        ;
+
+        
+    
+    
+                marker_a1551038d1b7f8a71c256b49316ea0c6.setIcon(icon_1c4c11c2e018e7713e2e558577ca378b);
+            
+    
+            marker_cluster_8d36156aeb41b1ed7737672965bb72cb.addTo(map_9bbd01d655cac0fa28bd2ee9e33db4a8);
+        
+</script>
+</html>
