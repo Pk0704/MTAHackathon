@@ -47,15 +47,34 @@ def preprocess_map_data(df, location_df):
         st.error(f"Error preprocessing map data: {e}")
         return None
 
+def generate_interactive_map(aggregated_data, style='Satellite'):
+    """Render a folium map with CRZ markers and customizable tile style."""
 
-def generate_interactive_map(aggregated_data):
-    """Render a folium map with CRZ markers."""
+    tile_styles = {
+        'Satellite': {
+            'tiles': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            'attr': 'Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, etc.'
+        },
+        'White': {
+            'tiles': 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+            'attr': '&copy; <a href="https://carto.com/">CARTO</a>'
+        },
+        'Regular': {
+            'tiles': 'OpenStreetMap',
+            'attr': None
+        }
+    }
+
+    if style not in tile_styles:
+        raise ValueError(f"Invalid map style: {style}. Choose from 'satellite', 'white', or 'regular'.")
+
+    selected_style = tile_styles[style]
+
     m = folium.Map(
-    location=[40.75, -73.97],
-    zoom_start=12,
-    # tiles='Stamen Terrain'
-    tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attr='Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, etc.'
+        location=[40.75, -73.97],
+        zoom_start=12,
+        tiles=selected_style['tiles'],
+        attr=selected_style['attr']
     )
 
 
@@ -73,9 +92,13 @@ def generate_interactive_map(aggregated_data):
                 icon=folium.Icon(color="blue", icon="car", prefix="fa")
             ).add_to(m)
 
-    folium_static(m, width=800, height=500)
+    # Add layer control for switching base maps
+    # folium.LayerControl(position='topright', collapsed=False).add_to(m)
 
-    
+    return m
+
+
+
 def plot_traffic_by_detection_region(df):
     """Plot total CRZ entries by detection region."""
     region_counts = df.groupby("Detection Region")["CRZ Entries"].sum().sort_values(ascending=False)

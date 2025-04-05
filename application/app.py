@@ -5,7 +5,9 @@ import polars as pl
 import json
 from functions import load_location_coords, preprocess_map_data, generate_interactive_map, figure_one, display_vehicles, figure_two, figure_three, traffic_vs_weather, cluster_labels
 import pydeck as pdk
-import streamlit_folium as st_folium
+import streamlit_folium as st_folium 
+from streamlit_folium import folium_static
+
 
 df = pl.read_csv('MTA_Congestion_Relief_Zone_Vehicle_Entries__Beginning_2025_20250404.csv')
 
@@ -142,5 +144,9 @@ elif show_map:
                     .sum()
                     .reset_index()
                 )
-
-                generate_interactive_map(aggregated_data)
+                col1, _ = st.columns([1, 4])  # Left column is smaller
+                with col1:
+                    style_choice = st.selectbox("Choose map style:", ["Satellite", "Light", "Standard"])
+                # Generate and display the map
+                m = generate_interactive_map(aggregated_data, style=style_choice)
+                folium_static(m)
