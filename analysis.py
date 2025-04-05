@@ -69,6 +69,7 @@ print("Trucks (Lorries):", avg_hour_trucks)
 print("Motorcycles:", avg_hour_motorcycles)
 print("Taxis:", avg_hour_taxis)
 
+# Plot the weighted histogram for vehicle entries by hour
 plt.figure(figsize=(10, 6))
 bins = range(0, 25)  # Hours 0 to 24
 
@@ -86,6 +87,38 @@ plt.ylabel("Number of Entries (Weighted by CRZ Entries)")
 plt.title("Weighted Vehicle Entries by Hour of Day")
 plt.legend()
 plt.xticks(bins)
+plt.show()
+
+# ---------------------------
+# STACKED BAR CHART: Proportion of CRZ Entries by Vehicle Type per Hour
+# ---------------------------
+# Aggregate CRZ Entries by Hour for each vehicle group.
+hours = range(0, 24)  # Hours 0 to 23
+df_cars = cars.groupby('Hour of Day')['CRZ Entries'].sum()
+df_trucks = trucks.groupby('Hour of Day')['CRZ Entries'].sum()
+df_motorcycles = motorcycles.groupby('Hour of Day')['CRZ Entries'].sum()
+df_taxis = taxis.groupby('Hour of Day')['CRZ Entries'].sum()
+
+# Create a DataFrame indexed by hour (ensuring all hours are present).
+stack_df = pd.DataFrame({
+    'Cars': df_cars,
+    'Trucks': df_trucks,
+    'Motorcycles': df_motorcycles,
+    'Taxis': df_taxis
+}).reindex(hours, fill_value=0)
+
+# Calculate total entries per hour and convert counts to proportions.
+stack_df['Total'] = stack_df.sum(axis=1)
+stack_df_ratio = stack_df[['Cars', 'Trucks', 'Motorcycles', 'Taxis']].div(stack_df['Total'], axis=0)
+
+plt.figure(figsize=(10, 6))
+stack_df_ratio.plot(kind='bar', stacked=True, colormap='Set1', width=0.8)
+plt.xlabel("Hour of Day", fontsize=12)
+plt.ylabel("Proportion of CRZ Entries", fontsize=12)
+plt.title("Stacked Proportions of CRZ Entries by Vehicle Type", fontsize=14)
+plt.xticks(rotation=0)  # Horizontal x-axis labels
+plt.legend(title="Vehicle Type", bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
 plt.show()
 
 # ---------------------------
@@ -239,16 +272,13 @@ print("\n--- Temporal Signature Identification ---")
 # The goal here is to detect distinctive daily traffic patterns that could signal holidays, special events, or typical weekdays.
 # We aggregate the data by Toll Date and Hour of Day to create a daily "signature" vector.
 
-# Create a pivot table with Toll Date as the index and Hour of Day as columns, summing CRZ Entries.
 daily_pattern = df.groupby(['Toll Date', 'Hour of Day'])['CRZ Entries'].sum().unstack(fill_value=0)
 print("\nDaily Traffic Pattern (first 5 rows):")
 print(daily_pattern.head())
 
-# Normalize the daily patterns for clustering.
 scaler = StandardScaler()
 daily_pattern_scaled = scaler.fit_transform(daily_pattern)
 
-# Use silhouette analysis to find the optimal number of clusters.
 from sklearn.metrics import silhouette_score
 sil_scores = {}
 for k in range(2, 10):
@@ -261,7 +291,6 @@ for k in range(2, 10):
 optimal_k = max(sil_scores, key=sil_scores.get)
 print(f"\nOptimal number of clusters determined by silhouette analysis: {optimal_k}")
 
-# Now run K-Means with the optimal number of clusters.
 kmeans = KMeans(n_clusters=optimal_k, random_state=42)
 clusters = kmeans.fit_predict(daily_pattern_scaled)
 daily_pattern['Cluster'] = clusters
@@ -269,19 +298,14 @@ daily_pattern['Cluster'] = clusters
 print("\nDaily pattern clusters assigned (first 5 rows):")
 print(daily_pattern[['Cluster']].head())
 
-# Compute average daily signature for each cluster.
 cluster_profiles = daily_pattern.groupby('Cluster').mean()
 
-# --- Assign descriptive names to clusters based on a simple heuristic ---
 cluster_labels = {}
 for cluster in cluster_profiles.index:
-    # Compute the mean CRZ Entries during typical morning hours (e.g., 7-10)
     morning_hours = [hour for hour in cluster_profiles.columns if isinstance(hour, (int, float)) and 7 <= hour <= 10]
     morning_peak = cluster_profiles.loc[cluster, morning_hours].mean() if morning_hours else 0
     overall_max = cluster_profiles.loc[cluster, [col for col in cluster_profiles.columns if isinstance(col, (int, float))]].max()
     ratio = morning_peak / overall_max if overall_max > 0 else 0
-    
-    # Simple rules to name clusters (these thresholds are illustrative)
     if ratio > 0.6:
         label = "Weekday Pattern"
     elif ratio < 0.3:
@@ -290,12 +314,10 @@ for cluster in cluster_profiles.index:
         label = "Mixed Pattern"
     cluster_labels[cluster] = label
 
-# Map the descriptive labels back to the daily_pattern DataFrame.
 daily_pattern['Pattern Type'] = daily_pattern['Cluster'].map(cluster_labels)
 print("\nAssigned Cluster Labels (first 5 rows):")
 print(daily_pattern[['Cluster', 'Pattern Type']].head())
 
-# Plot the average daily traffic pattern for each cluster with descriptive names.
 plt.figure(figsize=(10,6))
 hour_columns = [col for col in daily_pattern.columns if isinstance(col, (int, float))]
 for cluster in cluster_profiles.index:
@@ -317,7 +339,6 @@ print("These clusters represent distinctive daily traffic patterns that may corr
 API_KEY = "b1b230ed8664410080803403250504"
 BASE_URL = "http://api.weatherapi.com/v1/history.json"
 
-# Function to fetch weather data for a given date (format: YYYY-MM-DD)
 def fetch_weather(date_str, api_key=API_KEY, location="New York"):
     params = {
         "key": api_key,
@@ -335,24 +356,15 @@ def fetch_weather(date_str, api_key=API_KEY, location="New York"):
         "condition": forecast_day["condition"]["text"]
     }
 
-# ---------------------------
-# Load Traffic Data (your existing dataset)
-# ---------------------------
 df = pd.read_csv("MTA_Congestion_Relief_Zone_Vehicle_Entries__Beginning_2025_20250404.csv")
 print("Traffic Data sample:")
 print(df.head())
 
-# ---------------------------
-# Aggregate Traffic Data by Toll Date
-# ---------------------------
 traffic_daily = df.groupby("Toll Date")["CRZ Entries"].sum().reset_index()
 traffic_daily.rename(columns={"CRZ Entries": "daily_crz_entries"}, inplace=True)
 print("\nDaily Traffic Totals (first 5 rows):")
 print(traffic_daily.head())
 
-# ---------------------------
-# Fetch Weather Data for Each Toll Date
-# ---------------------------
 unique_dates = traffic_daily["Toll Date"].unique()
 weather_records = []
 for date in unique_dates:
@@ -367,9 +379,6 @@ weather_df = pd.DataFrame(weather_records)
 print("\nWeather Data sample:")
 print(weather_df.head())
 
-# ---------------------------
-# Merge Traffic and Weather Data
-# ---------------------------
 merged_df = pd.merge(traffic_daily, weather_df, left_on="Toll Date", right_on="date", how="inner")
 print("\nMerged Data sample:")
 print(merged_df.head())
@@ -400,9 +409,6 @@ weather_category_map = {
 }
 merged_df["weather_category"] = merged_df["condition"].apply(lambda cond: weather_category_map.get(cond, "Neutral"))
 
-# ---------------------------
-# Build a Regression Model: Predict Daily Traffic (CRZ Entries) based on Weather
-# ---------------------------
 features = ["avgtemp_c", "avghumidity", "totalprecip_mm", "condition"]
 X = merged_df[features]
 y = merged_df["daily_crz_entries"]
@@ -429,7 +435,6 @@ print(f"\nR-squared: {r_squared:.4f}")
 # ---------------------------
 # Visual Analysis: Powerful Graphs for Weather & Traffic Variability
 # ---------------------------
-# Convert Toll Date to datetime
 merged_df['Toll Date'] = pd.to_datetime(merged_df['Toll Date'], format='%m/%d/%Y')
 
 # Graph 1: Daily Traffic Volume Over Time with Bundled Weather Categories
