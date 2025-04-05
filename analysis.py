@@ -183,70 +183,141 @@ print("\n--- Congestion Relief Zone Efficiency Analysis ---")
 '''
 
 # ---------------------------
-# PART X: Temporal Signature Identification
+# PART X: Enhanced Temporal Signature Identification
 # ---------------------------
-print("\n--- Temporal Signature Identification ---")
-# Aggregate the data by Toll Date and Hour of Day to create a daily "signature" vector.
-daily_pattern = df.groupby(['Toll Date', 'Hour of Day'])['CRZ Entries'].sum().unstack(fill_value=0)
-print("\nDaily Traffic Pattern (first 5 rows):")
-print(daily_pattern.head())
+print("\n--- Enhanced Temporal Signature Identification ---")
 
+# Ensure 'Toll Date' is datetime
+df['Toll Date'] = pd.to_datetime(df['Toll Date'], format='%m/%d/%Y')
+
+# 1. Traffic Features:
+# Total daily volume
+daily_volume = df.groupby('Toll Date')['CRZ Entries'].sum().rename('total_volume')
+
+# Hourly traffic pivot
+hourly_pivot = df.groupby(['Toll Date', 'Hour of Day'])['CRZ Entries'].sum().unstack(fill_value=0)
+
+# Define peak hours (e.g., morning: 7-9 and evening: 17-19)
+peak_hours = [7, 8, 9, 17, 18, 19]
+peak_volume = hourly_pivot[peak_hours].sum(axis=1)
+peak_ratio = peak_volume / daily_volume
+
+# Variance of hourly traffic per day
+hourly_std = hourly_pivot.std(axis=1)
+
+# Daily growth rate (percentage change from previous day)
+growth_rate = daily_volume.pct_change().fillna(0)
+
+# 2. Calendar Effects:
+# Weekend indicator (Saturday=5, Sunday=6)
+is_weekend = (daily_volume.index.weekday >= 5).astype(int)
+
+# 3. Weather Integration (Optional):
+# For demonstration, let's fetch weather for each day.
+API_KEY = "b1b230ed8664410080803403250504"
+BASE_URL = "http://api.weatherapi.com/v1/history.json"
+
+def fetch_weather(date_str, api_key=API_KEY, location="New York"):
+    params = {
+        "key": api_key,
+        "q": location,
+        "dt": date_str
+    }
+    response = requests.get(BASE_URL, params=params)
+    data = response.json()
+    forecast_day = data["forecast"]["forecastday"][0]["day"]
+    return {
+        "date": date_str,
+        "avgtemp_c": forecast_day["avgtemp_c"],
+        "avghumidity": forecast_day["avghumidity"],
+        "totalprecip_mm": forecast_day["totalprecip_mm"]
+    }
+
+unique_dates = daily_volume.index.strftime('%Y-%m-%d').unique()
+weather_records = []
+for date in unique_dates:
+    try:
+        weather_data = fetch_weather(date)
+        weather_records.append(weather_data)
+        print(f"Fetched weather for {date}")
+    except Exception as e:
+        print(f"Failed to fetch weather for {date}: {e}")
+
+weather_df = pd.DataFrame(weather_records)
+weather_df['Toll Date'] = pd.to_datetime(weather_df['date'], format='%Y-%m-%d')
+weather_df = weather_df.set_index('Toll Date')[['avgtemp_c','avghumidity','totalprecip_mm']]
+# Compute a simple discomfort index: DI = avgtemp_c - ((100 - avghumidity)/5)
+weather_df['discomfort_index'] = weather_df['avgtemp_c'] - ((100 - weather_df['avghumidity'])/5)
+
+# 4. Combine all features into one DataFrame.
+features_df = pd.DataFrame({
+    'total_volume': daily_volume,
+    'peak_ratio': peak_ratio,
+    'hourly_std': hourly_std,
+    'growth_rate': growth_rate,
+    'is_weekend': is_weekend
+})
+features_df = features_df.merge(weather_df, left_index=True, right_index=True, how='inner')
+
+print("\nEnhanced Feature Set (first 5 rows):")
+print(features_df.head())
+
+# 5. Scale the features.
 scaler = StandardScaler()
-daily_pattern_scaled = scaler.fit_transform(daily_pattern)
+X_scaled = scaler.fit_transform(features_df)
 
-from sklearn.metrics import silhouette_score
+# 6. Dimensionality Reduction using PCA (retain 95% variance)
+from sklearn.decomposition import PCA
+pca = PCA(n_components=0.95, random_state=42)
+X_pca = pca.fit_transform(X_scaled)
+print(f"Number of PCA components: {X_pca.shape[1]}")
+
+# 7. Determine optimal number of clusters using silhouette analysis.
 sil_scores = {}
+from sklearn.metrics import silhouette_score
 for k in range(2, 10):
     kmeans_temp = KMeans(n_clusters=k, random_state=42)
-    temp_clusters = kmeans_temp.fit_predict(daily_pattern_scaled)
-    score = silhouette_score(daily_pattern_scaled, temp_clusters)
+    labels = kmeans_temp.fit_predict(X_pca)
+    score = silhouette_score(X_pca, labels)
     sil_scores[k] = score
     print(f"Silhouette score for k={k}: {score:.4f}")
-
 optimal_k = max(sil_scores, key=sil_scores.get)
-print(f"\nOptimal number of clusters determined by silhouette analysis: {optimal_k}")
+print(f"\nOptimal number of clusters: {optimal_k}")
 
+# 8. Run KMeans clustering.
 kmeans = KMeans(n_clusters=optimal_k, random_state=42)
-clusters = kmeans.fit_predict(daily_pattern_scaled)
-daily_pattern['Cluster'] = clusters
+cluster_labels = kmeans.fit_predict(X_pca)
+features_df['Cluster'] = cluster_labels
 
-print("\nDaily pattern clusters assigned (first 5 rows):")
-print(daily_pattern[['Cluster']].head())
+# 9. Compute cluster profiles (means) for interpretation.
+cluster_summary = features_df.groupby('Cluster').mean()
+print("\nCluster Summary:")
+print(cluster_summary)
 
-cluster_profiles = daily_pattern.groupby('Cluster').mean()
-
-cluster_labels = {}
-for cluster in cluster_profiles.index:
-    morning_hours = [hour for hour in cluster_profiles.columns if isinstance(hour, (int, float)) and 7 <= hour <= 10]
-    morning_peak = cluster_profiles.loc[cluster, morning_hours].mean() if morning_hours else 0
-    overall_max = cluster_profiles.loc[cluster, [col for col in cluster_profiles.columns if isinstance(col, (int, float))]].max()
-    ratio = morning_peak / overall_max if overall_max > 0 else 0
-    if ratio > 0.6:
-        label = "Weekday Pattern"
-    elif ratio < 0.3:
-        label = "Weekend/Holiday Pattern"
-    else:
-        label = "Mixed Pattern"
-    cluster_labels[cluster] = label
-
-daily_pattern['Pattern Type'] = daily_pattern['Cluster'].map(cluster_labels)
-print("\nAssigned Cluster Labels (first 5 rows):")
-print(daily_pattern[['Cluster', 'Pattern Type']].head())
-
-plt.figure(figsize=(10,6))
-hour_columns = [col for col in daily_pattern.columns if isinstance(col, (int, float))]
-for cluster in cluster_profiles.index:
-    plt.plot(hour_columns, cluster_profiles.loc[cluster, hour_columns],
-             label=f"Cluster {cluster} ({cluster_labels[cluster]})")
-plt.xlabel("Hour of Day")
-plt.ylabel("Average CRZ Entries")
-plt.title("Average Daily Traffic Pattern Signature by Cluster")
-plt.legend()
+# 10. Visualize clusters using the first two principal components.
+plt.figure(figsize=(8,6))
+plt.scatter(X_pca[:,0], X_pca[:,1], c=cluster_labels, cmap='viridis', s=50)
+plt.xlabel("PC1")
+plt.ylabel("PC2")
+plt.title("PCA Projection of Enhanced Clusters")
+plt.colorbar(label="Cluster")
 plt.show()
 
-print("\nTemporal Signature Identification complete.")
-print("These clusters represent distinctive daily traffic patterns that may correspond to normal weekdays, weekends, holidays, or special events.")
+# 11. (Optional) Assign descriptive names to clusters.
+descriptive_labels = {}
+for cluster in cluster_summary.index:
+    if cluster_summary.loc[cluster, 'peak_ratio'] > 0.6 and cluster_summary.loc[cluster, 'is_weekend'] < 0.5:
+        descriptive_labels[cluster] = "High Demand Weekday"
+    elif cluster_summary.loc[cluster, 'is_weekend'] > 0.5:
+        descriptive_labels[cluster] = "Weekend/Low Demand"
+    else:
+        descriptive_labels[cluster] = "Mixed Pattern"
+features_df['Pattern Type'] = features_df['Cluster'].map(descriptive_labels)
+print("\nAssigned Cluster Descriptive Labels (first 5 rows):")
+print(features_df[['Cluster', 'Pattern Type']].head())
 
+print("\nEnhanced Temporal Signature Identification complete.")
+print("These clusters incorporate traffic, weather, and calendar features to distinguish different types of days.")
 
 # --------------------------------------
 # Weather API & Visual Analysis
@@ -300,19 +371,14 @@ print(merged_df.head())
 
 # --- Bundle Weather Conditions into Categories ---
 weather_category_map = {
-    # Favorable conditions
     "Sunny": "Favorable",
     "Clear": "Favorable",
     "Partly cloudy": "Favorable",
-    
-    # Neutral conditions
     "Overcast": "Neutral",
     "Cloudy": "Neutral",
     "Patchy rain possible": "Neutral",
     "Light rain": "Neutral",
     "Light freezing rain": "Neutral",
-    
-    # Unfavorable conditions
     "Heavy rain": "Unfavorable",
     "Heavy rain at times": "Unfavorable",
     "Moderate or heavy rain shower": "Unfavorable",
