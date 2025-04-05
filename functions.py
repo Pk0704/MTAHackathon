@@ -3,28 +3,24 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from perspective import Table
 import streamlit.components.v1 as components
+import folium
+from streamlit_folium import st_folium
 
-def plot_hourly_traffic(df):
-    """Plot number of entries by hour of day."""
-    hourly_counts = df.groupby("Hour of Day")["CRZ Entries"].sum()
-    fig, ax = plt.subplots()
-    hourly_counts.plot(kind="bar", ax=ax)
-    ax.set_title("Total CRZ Entries by Hour of Day")
-    ax.set_xlabel("Hour")
-    ax.set_ylabel("CRZ Entries")
-    st.pyplot(fig)
+def show_interactive_map(df):
+    """Displays an interactive folium map with CRZ entries by location."""
+    m = folium.Map(location=[40.75, -73.97], zoom_start=12)
 
-def plot_day_of_week_traffic(df):
-    """Plot number of entries by day of week."""
-    day_order = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-    daily_counts = df.groupby("Day of Week")["CRZ Entries"].sum().reindex(day_order)
-    fig, ax = plt.subplots()
-    daily_counts.plot(kind="bar", ax=ax)
-    ax.set_title("Total CRZ Entries by Day of Week")
-    ax.set_xlabel("Day")
-    ax.set_ylabel("CRZ Entries")
-    st.pyplot(fig)
+    for _, row in df.iterrows():
+        if pd.notna(row["Latitude"]) and pd.notna(row["Longitude"]):
+            popup = f"{row['Detection Group']}<br>CRZ Entries: {row['CRZ Entries']}"
+            folium.Marker(
+                location=[row["Latitude"], row["Longitude"]],
+                popup=popup,
+                icon=folium.Icon(color="blue", icon="car", prefix="fa")
+            ).add_to(m)
 
+    st_folium(m, width=800, height=500)
+    
 def plot_traffic_by_detection_region(df):
     """Plot total CRZ entries by detection region."""
     region_counts = df.groupby("Detection Region")["CRZ Entries"].sum().sort_values(ascending=False)
@@ -35,23 +31,12 @@ def plot_traffic_by_detection_region(df):
     ax.set_ylabel("CRZ Entries")
     st.pyplot(fig)
 
-def plot_vehicle_class_distribution(df):
-    """Pie chart of vehicle class usage."""
-    vehicle_counts = df["Vehicle Class"].value_counts()
-    fig, ax = plt.subplots()
-    ax.pie(vehicle_counts, labels=vehicle_counts.index, autopct="%1.1f%%", startangle=140)
-    ax.set_title("Distribution of Vehicle Classes")
-    st.pyplot(fig)
-    
 def display_vehicles(data, location):
     # Filter data by location
     df = data[data['Detection Group'] == location]
     
-    # Convert the DataFrame to a list of dictionaries
-    records = df.to_dict(orient='records')
-    
-    # Create a Perspective table using the list of dictionaries
-    table = Table(records)
+    # Create a Perspective table using the factory function
+    table = Table(df)
 
     # Generate HTML/JS for the Perspective viewer
     html_template = """
@@ -68,7 +53,7 @@ def display_vehicles(data, location):
 
     # Render in Streamlit
     components.html(html_template, height=600)
-
+    
 def display_time_series(data, location):
     
     df = data[data['Detection Group'] == location]
@@ -81,8 +66,6 @@ def display_time_series(data, location):
     
     # Display the bar chart
     st.bar_chart(vehicle_counts)
-    
-    
     
 data=pd.read_csv('data.csv')
 display_vehicles(data, 'Brooklyn Bridge')
