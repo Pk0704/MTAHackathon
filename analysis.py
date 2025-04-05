@@ -245,12 +245,10 @@ print("\nDaily Traffic Pattern (first 5 rows):")
 print(daily_pattern.head())
 
 # Normalize the daily patterns for clustering.
-from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
 daily_pattern_scaled = scaler.fit_transform(daily_pattern)
 
 # Use silhouette analysis to find the optimal number of clusters.
-from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 sil_scores = {}
 for k in range(2, 10):
@@ -275,7 +273,6 @@ print(daily_pattern[['Cluster']].head())
 cluster_profiles = daily_pattern.groupby('Cluster').mean()
 
 # --- Assign descriptive names to clusters based on a simple heuristic ---
-# (This heuristic is arbitrary and can be refined.)
 cluster_labels = {}
 for cluster in cluster_profiles.index:
     # Compute the mean CRZ Entries during typical morning hours (e.g., 7-10)
@@ -284,7 +281,7 @@ for cluster in cluster_profiles.index:
     overall_max = cluster_profiles.loc[cluster, [col for col in cluster_profiles.columns if isinstance(col, (int, float))]].max()
     ratio = morning_peak / overall_max if overall_max > 0 else 0
     
-    # Simple rules to name clusters (these thresholds are illustrative):
+    # Simple rules to name clusters (these thresholds are illustrative)
     if ratio > 0.6:
         label = "Weekday Pattern"
     elif ratio < 0.3:
@@ -300,7 +297,6 @@ print(daily_pattern[['Cluster', 'Pattern Type']].head())
 
 # Plot the average daily traffic pattern for each cluster with descriptive names.
 plt.figure(figsize=(10,6))
-# Extract the hour columns (numeric columns) from the pivot table.
 hour_columns = [col for col in daily_pattern.columns if isinstance(col, (int, float))]
 for cluster in cluster_profiles.index:
     plt.plot(hour_columns, cluster_profiles.loc[cluster, hour_columns],
@@ -361,8 +357,6 @@ unique_dates = traffic_daily["Toll Date"].unique()
 weather_records = []
 for date in unique_dates:
     try:
-        # Convert the date to the proper format if needed (assumes "MM/DD/YYYY")
-        # Here, we assume the dates are already in "YYYY-MM-DD" format.
         weather_data = fetch_weather(date)
         weather_records.append(weather_data)
         print(f"Fetched weather for {date}")
@@ -380,65 +374,85 @@ merged_df = pd.merge(traffic_daily, weather_df, left_on="Toll Date", right_on="d
 print("\nMerged Data sample:")
 print(merged_df.head())
 
+# --- Bundle Weather Conditions into Categories ---
+weather_category_map = {
+    # Favorable conditions
+    "Sunny": "Favorable",
+    "Clear": "Favorable",
+    "Partly cloudy": "Favorable",
+    
+    # Neutral conditions
+    "Overcast": "Neutral",
+    "Cloudy": "Neutral",
+    "Patchy rain possible": "Neutral",
+    "Light rain": "Neutral",
+    "Light freezing rain": "Neutral",
+    
+    # Unfavorable conditions
+    "Heavy rain": "Unfavorable",
+    "Heavy rain at times": "Unfavorable",
+    "Moderate or heavy rain shower": "Unfavorable",
+    "Moderate rain": "Unfavorable",
+    "Moderate rain at times": "Unfavorable",
+    "Moderate or heavy snow showers": "Unfavorable",
+    "Patchy moderate snow": "Unfavorable",
+    "Moderate snow": "Unfavorable"
+}
+merged_df["weather_category"] = merged_df["condition"].apply(lambda cond: weather_category_map.get(cond, "Neutral"))
+
 # ---------------------------
 # Build a Regression Model: Predict Daily Traffic (CRZ Entries) based on Weather
 # ---------------------------
-# Use weather features: average temperature, average humidity, total precipitation, and condition.
 features = ["avgtemp_c", "avghumidity", "totalprecip_mm", "condition"]
 X = merged_df[features]
 y = merged_df["daily_crz_entries"]
 
-# Create a preprocessor to one-hot encode the "condition" column.
 preprocessor = ColumnTransformer(transformers=[
     ("cat", OneHotEncoder(), ["condition"])
-], remainder="passthrough")  # Pass remaining columns as is.
+], remainder="passthrough")
 
-# Build a pipeline that applies the preprocessor and then fits a linear regression model.
 pipeline = Pipeline(steps=[
     ("preprocessor", preprocessor),
     ("regressor", LinearRegression())
 ])
-
 pipeline.fit(X, y)
 
-# Print out the model coefficients.
 model = pipeline.named_steps["regressor"]
 feature_names = pipeline.named_steps["preprocessor"].get_feature_names_out()
 coefficients = dict(zip(feature_names, model.coef_))
 print("\nRegression Model Coefficients:")
 for feature, coef in coefficients.items():
     print(f"{feature}: {coef:.4f}")
-
 r_squared = pipeline.score(X, y)
 print(f"\nR-squared: {r_squared:.4f}")
 
 # ---------------------------
 # Visual Analysis: Powerful Graphs for Weather & Traffic Variability
 # ---------------------------
-
 # Convert Toll Date to datetime
 merged_df['Toll Date'] = pd.to_datetime(merged_df['Toll Date'], format='%m/%d/%Y')
 
-# Graph 1: Daily Traffic Volume Over Time with Weather Conditions
+# Graph 1: Daily Traffic Volume Over Time with Bundled Weather Categories
 plt.figure(figsize=(14, 6))
 sns.lineplot(data=merged_df, x='Toll Date', y='daily_crz_entries', marker='o', color='gray', label='Daily Traffic')
-sns.scatterplot(data=merged_df, x='Toll Date', y='daily_crz_entries', hue='condition',
-                palette='Set2', s=100, edgecolor='black')
-plt.title('Daily Traffic Volume Over Time with Weather Conditions')
+sns.scatterplot(data=merged_df, x='Toll Date', y='daily_crz_entries', hue='weather_category',
+                palette='Set1', s=100, edgecolor='black')
+plt.title('Daily Traffic Volume Over Time (Weather Categories)')
 plt.xlabel('Date')
 plt.ylabel('Daily CRZ Entries')
-plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', title='Weather Condition')
+plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', title='Weather Category')
 plt.tight_layout()
 plt.show()
 
-# Graph 2: Traffic Volume vs. Average Temperature
+# Graph 2: Traffic Volume vs. Average Temperature (Color-coded by Bundled Weather Category)
 plt.figure(figsize=(10, 6))
-sns.scatterplot(data=merged_df, x='avgtemp_c', y='daily_crz_entries', hue='condition', palette='Set1', s=100, edgecolor='black')
-sns.regplot(data=merged_df, x='avgtemp_c', y='daily_crz_entries', scatter=False, color='black', line_kws={'linewidth':1.5})
+sns.scatterplot(data=merged_df, x='avgtemp_c', y='daily_crz_entries', hue='weather_category', 
+                palette='Set1', s=100, edgecolor='black')
+sns.regplot(data=merged_df, x='avgtemp_c', y='daily_crz_entries', scatter=False, 
+            color='black', line_kws={'linewidth':1.5})
 plt.title('Daily Traffic Volume vs. Average Temperature')
 plt.xlabel('Average Temperature (°C)')
 plt.ylabel('Daily CRZ Entries')
-plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', title='Weather Condition')
+plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', title='Weather Category')
 plt.tight_layout()
 plt.show()
-
