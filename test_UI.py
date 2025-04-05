@@ -5,6 +5,8 @@ import folium
 from folium.plugins import MarkerCluster
 from streamlit_folium import st_folium
 from datetime import datetime
+import joblib
+
 
 # ---- SETUP ----
 st.set_page_config(layout="wide")
@@ -71,7 +73,7 @@ if "Toll Date" in df.columns and len(selected_range) == 2:
     ]
 
 # ------------------ CHART TABS ------------------ #
-daily_tab, hourly_tab = st.tabs(["Daily", "Hourly"])
+daily_tab, hourly_tab, predict_tab = st.tabs(["Daily View", "Hourly View", "Predict CRZ Entries"])
 
 with daily_tab:
     st.subheader("Daily Vehicle Entries")
@@ -117,7 +119,6 @@ with hourly_tab:
 if show_map:
     st.subheader("Detection Points Map")
 
-    # Coordinates for key detection points
     coordinates = {
         'Brooklyn Bridge': (40.7061, -73.9969),
         'West Side Highway at 60th St': (40.7711, -73.9882),
@@ -157,7 +158,7 @@ if show_map:
 
             folium.CircleMarker(
                 location=location,
-                radius=min(max(entries / 20, 4), 15),  # scale radius
+                radius=min(max(entries / 20, 4), 15),
                 fill=True,
                 fill_opacity=0.7,
                 color=None,
@@ -167,3 +168,46 @@ if show_map:
             ).add_to(marker_cluster)
 
     st_folium(m, width=1000, height=600)
+
+# ------------------ PREDICTION TAB ------------------ #
+with predict_tab:
+    st.subheader("Predict CRZ Entries")
+
+    # Load model + preprocessor
+    model = joblib.load("crz_model.pkl")
+    preprocessor = joblib.load("preprocessor.pkl")
+
+    # UI inputs
+    col1, col2 = st.columns(2)
+
+    detection_groups = df["Detection Group"].dropna().unique().tolist()
+    detection_regions = df["Detection Region"].dropna().unique().tolist()
+    vehicle_classes = df["Vehicle Class"].dropna().unique().tolist()
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    time_periods = df["Time Period"].dropna().unique().tolist()
+
+    with col1:
+        det_group = st.selectbox("Detection Group", detection_groups)
+        region = st.selectbox("Detection Region", detection_regions)
+        vehicle = st.selectbox("Vehicle Class", vehicle_classes)
+
+    with col2:
+        day = st.selectbox("Day of Week", days)
+        hour = st.slider("Hour of Day", 0, 23, 8)
+        period = st.selectbox("Time Period", time_periods)
+
+    # Predict
+    if st.button("Predict CRZ Entries"):
+        input_df = pd.DataFrame([{
+            "Detection Group": det_group,
+            "Detection Region": region,
+            "Vehicle Class": vehicle,
+            "Day of Week": day,
+            "Hour of Day": hour,
+            "Time Period": period
+        }])
+
+        X_input = preprocessor.transform(input_df)
+        prediction = model.predict(X_input)[0]
+
+        st.success(f"Estimated CRZ Entries: **{int(prediction):,}** vehicles")
