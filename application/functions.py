@@ -345,8 +345,8 @@ def figure_three(df):
 
 def traffic_vs_weather(df):
     """
-    Generates a scatter plot of daily traffic volume vs. average temperature,
-    color-coded by weather categories.
+    Generates an interactive scatter plot of daily traffic volume vs. average temperature,
+    color-coded by weather categories, with an interactive trendline.
     """
     API_KEY = "b1b230ed8664410080803403250504"
     BASE_URL = "http://api.weatherapi.com/v1/history.json"
@@ -403,21 +403,33 @@ def traffic_vs_weather(df):
     }
     merged_df["weather_category"] = merged_df["condition"].apply(lambda cond: weather_category_map.get(cond, "Neutral"))
 
-    # Convert date column to datetime
+    # Convert date column to datetime (if needed elsewhere)
     merged_df['Toll Date'] = pd.to_datetime(merged_df['Toll Date'], format='%m/%d/%Y')
 
-    # Generate the scatter plot
-    plt.figure(figsize=(10, 6))
-    sns.scatterplot(data=merged_df, x='avgtemp_c', y='daily_crz_entries', hue='weather_category', 
-                    palette='Set1', s=100, edgecolor='black')
-    sns.regplot(data=merged_df, x='avgtemp_c', y='daily_crz_entries', scatter=False, 
-                color='black', line_kws={'linewidth': 1.5})
-    plt.title('Daily Traffic Volume vs. Average Temperature')
-    plt.xlabel('Average Temperature (°C)')
-    plt.ylabel('Daily CRZ Entries')
-    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', title='Weather Category')
-    plt.tight_layout()
-    st.pyplot(plt)
+    # Create interactive scatter plot with a trendline
+    fig = px.scatter(
+        merged_df,
+        x="avgtemp_c",
+        y="daily_crz_entries",
+        color="weather_category",
+        labels={
+            "avgtemp_c": "Average Temperature (°C)",
+            "daily_crz_entries": "Daily CRZ Entries"
+        },
+        title="Daily Traffic Volume vs. Average Temperature",
+        trendline='ols',  # Ordinary Least Squares trendline
+        trendline_scope= 'overall',
+        template="plotly_white"
+    )
+
+    # Update marker style for a similar aesthetic
+    fig.update_traces(marker=dict(size=10, line=dict(width=1, color="black")))
+    fig.update_layout(legend_title_text="Weather Category", margin=dict(l=0, r=0, t=50, b=0))
+
+    
+    
+    # Display the plot in Streamlit
+    st.plotly_chart(fig)
     
 def cluster_labels(df):
     # Ensure 'Toll Date' is datetime
