@@ -7,8 +7,7 @@ from functions import show_interactive_map, figure_one, display_vehicles, figure
 import pydeck as pdk
 import streamlit_folium as st_folium
 
-
-df=pl.read_csv('MTA_Congestion_Relief_Zone_Vehicle_Entries__Beginning_2025_20250404.csv')
+df = pl.read_csv('MTA_Congestion_Relief_Zone_Vehicle_Entries__Beginning_2025_20250404.csv')
 
 # Set page configuration
 st.set_page_config(
@@ -54,9 +53,17 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Title and description
-st.markdown("<h1 style='text-align: center; color: #4CAF50;'>MTA CRZ Data Dashboard</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #FFFFFF;'>Explore traffic and weather data insights for better decision-making.</p>", unsafe_allow_html=True)
+# Title and description with MTA logo
+st.image("mta_logo.png", width=120)  # Display the local MTA logo
+st.markdown(
+    """
+    <div style='text-align: center;'>
+        <h1 style='color: #4CAF50;'>MTA CRZ Data Dashboard</h1>
+        <p style='color: #FFFFFF;'>Explore traffic and weather data insights for better decision-making.</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
@@ -87,7 +94,6 @@ if visualization_option == "Raw Data" and not show_map:
     df = load_data()
     # Convert to Pandas for Streamlit's dataframe rendering
     st.dataframe(df, use_container_width=True, hide_index=True)
-
 
 # Visualizations Section
 elif visualization_option != "None" and not show_map:
