@@ -1,10 +1,11 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import perspective
 import streamlit.components.v1 as components
 import folium
 from streamlit_folium import st_folium
+import seaborn as sns
+
 
 def show_interactive_map(df):
     """Displays an interactive folium map with CRZ entries by location."""
@@ -35,24 +36,23 @@ def display_vehicles(data, location):
     # Filter data by location
     df = data[data['Detection Group'] == location]
     
-    # Create a Perspective table using the factory function
-    table = Table(df.to_dict(orient="records"))
-
-    # Generate HTML/JS for the Perspective viewer
-    html_template = """
-    <link href='https://unpkg.com/@finos/perspective-viewer/dist/css/material.css' rel='stylesheet'>
-    <script src='https://unpkg.com/@finos/perspective-viewer/dist/umd/perspective-viewer.js'></script>
-    <perspective-viewer style="height: 500px; width: 100%;" id="viewer"></perspective-viewer>
-    <script>
-      const viewer = document.getElementById("viewer");
-      const table = perspective.worker().table(%s);
-      viewer.load(table);
-      viewer.restore({group_by: ["Vehicle Class"], columns: ["Count"]});
-    </script>
-    """ % table.to_arrow().to_pybytes().hex()
-
-    # Render in Streamlit
-    components.html(html_template, height=600)
+    # Display the filtered data
+    st.write("Distributions: ")
+    
+    # Get the distribution of vehicle classes in descending order
+    vehicle_counts = df['Vehicle Class'].value_counts().sort_values(ascending=False)
+    
+    # Rename the index to remove numbers from the x-axis
+    vehicle_counts.index = vehicle_counts.index.str.replace(r'^\d+\s*-\s*', '', regex=True)
+    
+    # Plot the bar chart using Seaborn
+    fig, ax = plt.subplots(figsize=(12, 6))
+    sns.barplot(x=vehicle_counts.index, y=vehicle_counts.values, ax=ax, palette="Blues_d")
+    ax.set_title("Vehicle Class Distribution", fontsize=16)
+    ax.set_xlabel("Vehicle Class", fontsize=12)
+    ax.set_ylabel("Count", fontsize=12)
+    ax.tick_params(axis='x', rotation=45)  # Rotate x-axis labels for better readability
+    st.pyplot(fig)
     
 def display_time_series(data, location):
     
@@ -66,6 +66,9 @@ def display_time_series(data, location):
     
     # Display the bar chart
     st.bar_chart(vehicle_counts)
-    
-data=pd.read_csv('data.csv')
+
+
+
+# Load the data
+data = pd.read_csv('data.csv')
 display_vehicles(data, 'Brooklyn Bridge')
