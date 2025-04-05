@@ -3,7 +3,9 @@ import polars as pl
 import json
 from functions import show_interactive_map, figure_one, display_vehicles, figure_two, figure_three, traffic_vs_weather, cluster_labels
 
-df=pl.read_csv('data.csv')
+
+df=pl.read_csv('MTA_Congestion_Relief_Zone_Vehicle_Entries__Beginning_2025_20250404.csv')
+
 # Set page configuration
 st.set_page_config(
     page_title="MTA CRZ Data Dashboard",
@@ -32,6 +34,13 @@ st.markdown(
     .css-10trblm {
         color: #000000;  /* Black text */
     }
+    /* Change the font family */
+    html, body, [class*="css"] {
+        font-family: 'Georgia', serif !important;  /* Use Georgia font globally */
+    }
+    h1, h2, h3, h4, h5, h6, p, div {
+        font-family: 'Georgia', serif !important;  /* Ensure headers and paragraphs use Georgia */
+    }
     /* Add padding to the main content */
     .block-container {
         padding: 2rem 2rem;
@@ -52,7 +61,7 @@ st.sidebar.title("Navigation")
 st.sidebar.subheader("Visualizations")
 visualization_option = st.sidebar.selectbox(
     "Select a visualization to display:",
-    ["None", "Vehicle Time Series Analysis", "Vehicle Class Breakdown", "Traffic Time Series Analysis", "Traffic vs Temperature", "Clustering Labels"]
+    ["Raw Data", "Vehicle Time Series Analysis", "Vehicle Class Breakdown", "Traffic Time Series Analysis", "Traffic vs Temperature", "Clustering Labels"]
 )
 
 # Section 2: Interactive Map
@@ -60,12 +69,12 @@ st.sidebar.subheader("Interactive Map")
 show_map = st.sidebar.checkbox("Show Interactive Map")
 
 # Main Content: Raw Data
-if visualization_option == "None" and not show_map:
+if visualization_option == "Raw Data" and not show_map:
     st.write("## Raw Data")
     @st.cache_data
     def load_data():
         # Load the CSV file into a Polars DataFrame
-        df = pl.read_csv("data.csv")
+        df = pl.read_csv("MTA_Congestion_Relief_Zone_Vehicle_Entries__Beginning_2025_20250404.csv")
         # Drop the "Unnamed: 0" column if it exists
         if "Unnamed: 0" in df.columns:
             df = df.drop("Unnamed: 0")
@@ -73,8 +82,8 @@ if visualization_option == "None" and not show_map:
 
     df = load_data()
     # Convert to Pandas for Streamlit's dataframe rendering
-    temp = df.head(25).to_pandas()
-    st.dataframe(temp, use_container_width=True, hide_index=True)
+    st.dataframe(df, use_container_width=True, hide_index=True)
+
 
 # Visualizations Section
 elif visualization_option != "None":

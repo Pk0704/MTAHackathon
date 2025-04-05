@@ -9,6 +9,9 @@ import folium
 from streamlit_folium import st_folium
 import seaborn as sns
 import requests
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 
 
 def show_interactive_map(df):
@@ -104,31 +107,50 @@ def figure_one(df):
 
 def figure_two(df):
     grouped = df.groupby(["Time Period", "Vehicle Class"])["CRZ Entries"].sum().reset_index()
-    # Map the detailed vehicle classes to contracted names.
+    
+    # Map the detailed vehicle classes to contracted names
     vehicle_class_map = {
         "TLC Taxi/FHV": "TLC Taxi/FHV",
-        "5 - Motorcycles": "motorcycles",
-        "4 - Buses": "buses",
-        "3 - Multi-Unit Trucks": "Trucks (multi)",
-        "2 - Single-Unit Trucks": "trucks (Single)",
-        "1 - Cars, Pickups and Vans": "cars, pickups, vans"
+        "5 - Motorcycles": "Motorcycles",
+        "4 - Buses": "Buses",
+        "3 - Multi-Unit Trucks": "Trucks (Multi)",
+        "2 - Single-Unit Trucks": "Trucks (Single)",
+        "1 - Cars, Pickups and Vans": "Cars, Pickups, Vans"
     }
     grouped["Vehicle Class"] = grouped["Vehicle Class"].map(vehicle_class_map)
+    
+    # Pivot the data for proportions
     pivot = grouped.pivot(index="Vehicle Class", columns="Time Period", values="CRZ Entries").fillna(0)
-    # For each vehicle class, compute the proportion for each time period (so they add to 1).
-    pivot_prop = pivot.div(pivot.sum(axis=1), axis=0)
+    pivot_prop = pivot.div(pivot.sum(axis=1), axis=0)  # Normalize to proportions
 
-    # Plot a grouped bar chart: vehicle class on x-axis, two bars per class (Peak and Overnight)
-    plt.figure(figsize=(10, 6))
-    # We'll use a custom color set (e.g., yellow and blue)
-    colors = {"Peak": "Crimson", "Overnight": "blue"}
-    pivot_prop.plot(kind="bar", stacked=False, color=[colors.get(tp, "gray") for tp in pivot_prop.columns], figsize=(10,6))
-    plt.xlabel("Vehicle Class", fontsize=12)
-    plt.ylabel("Proportion of Total CRZ Entries", fontsize=12)
-    plt.title("Proportion of CRZ Entries by Time Period for Each Vehicle Class", fontsize=14)
-    plt.xticks(rotation=0)  # Rotate x-axis labels horizontally.
-    plt.legend(title="Time Period", bbox_to_anchor=(1.05, 1), loc='upper left')
+    # Reset index for Seaborn compatibility
+    pivot_prop = pivot_prop.reset_index()
+
+    # Melt the data for Seaborn's barplot
+    melted_data = pivot_prop.melt(id_vars="Vehicle Class", var_name="Time Period", value_name="Proportion")
+
+    # Plot using Seaborn
+    plt.figure(figsize=(12, 8))
+    sns.barplot(
+        data=melted_data,
+        x="Vehicle Class",
+        y="Proportion",
+        hue="Time Period",
+        palette={"Peak": "#FF5733", "Overnight": "#3498DB"},
+        edgecolor="black"
+    )
+    
+    # Customize the plot
+    plt.title("Proportion of CRZ Entries by Time Period for Each Vehicle Class", fontsize=16, pad=20)
+    plt.xlabel("Vehicle Class", fontsize=14, labelpad=10)
+    plt.ylabel("Proportion of Total CRZ Entries", fontsize=14, labelpad=10)
+    plt.xticks(rotation=0, fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.legend(title="Time Period", fontsize=12, title_fontsize=14, loc="upper right")
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
     plt.tight_layout()
+
+    # Display the plot in Streamlit
     st.pyplot(plt)
     
 def figure_three(df):
@@ -318,36 +340,56 @@ def traffic_vs_weather(df):
     st.pyplot(plt)
     
 def cluster_labels(df):
-    # Load and preprocess data
-    df = pd.read_csv("MTA_Congestion_Relief_Zone_Vehicle_Entries__Beginning_2025_20250404.csv")
+        # Ensure 'Toll Date' is datetime
     df['Toll Date'] = pd.to_datetime(df['Toll Date'], format='%m/%d/%Y')
-    traffic_daily = df.groupby("Toll Date")["CRZ Entries"].sum().reset_index()
-    traffic_daily.rename(columns={"CRZ Entries": "daily_crz_entries"}, inplace=True)
 
-    # Simulated weather data (replace with actual API data if available)
-    weather_data = {
-        "date": traffic_daily["Toll Date"].dt.strftime('%Y-%m-%d'),
-        "avgtemp_c": [15 + i % 10 for i in range(len(traffic_daily))],  # Example temperatures
-        "condition": ["Sunny" if i % 3 == 0 else "Cloudy" for i in range(len(traffic_daily))]
-    }
-    weather_df = pd.DataFrame(weather_data)
-    weather_df["weather_category"] = weather_df["condition"].apply(
-        lambda cond: "Favorable" if cond == "Sunny" else "Neutral"
-    )
+    # Aggregate data for clustering
+    daily_volume = df.groupby('Toll Date')['CRZ Entries'].sum().rename('total_volume')
+    hourly_pivot = df.groupby(['Toll Date', 'Hour of Day'])['CRZ Entries'].sum().unstack(fill_value=0)
 
-    # Merge traffic and weather data
-    merged_df = pd.merge(traffic_daily, weather_df, left_on="Toll Date", right_on="date", how="inner")
+    # Create features for clustering
+    peak_hours = [7, 8, 9, 17, 18, 19]
+    peak_volume = hourly_pivot[peak_hours].sum(axis=1)
+    peak_ratio = peak_volume / daily_volume
+    hourly_std = hourly_pivot.std(axis=1)
 
-    # Plot: Traffic Volume vs. Average Temperature
+    features_df = pd.DataFrame({
+        'total_volume': daily_volume,
+        'peak_ratio': peak_ratio,
+        'hourly_std': hourly_std,
+    })
+
+    # Scale the features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(features_df)
+
+    # Apply PCA for dimensionality reduction
+    pca = PCA(n_components=0.95, random_state=42)
+    X_pca = pca.fit_transform(X_scaled)
+
+    # Perform KMeans clustering
+    kmeans = KMeans(n_clusters=2, random_state=42)
+    cluster_labels = kmeans.fit_predict(X_pca)
+    features_df['Cluster'] = cluster_labels
+
+    # Merge cluster labels with hourly traffic data
+    daily_pattern = df.groupby(['Toll Date', 'Hour of Day'])['CRZ Entries'].sum().unstack(fill_value=0)
+    daily_pattern_reset = daily_pattern.reset_index()
+    features_reset = features_df.reset_index()
+    merged_pattern = pd.merge(daily_pattern_reset, features_reset[['Toll Date', 'Cluster']], on='Toll Date', how='left')
+    merged_pattern.set_index('Toll Date', inplace=True)
+
+    # Calculate average hourly traffic pattern for each cluster
+    hour_cols = [col for col in merged_pattern.columns if isinstance(col, (int, float))]
+    cluster_profiles_line = merged_pattern.groupby('Cluster')[hour_cols].mean()
+
+    # Plot the average daily traffic profile for each cluster
     plt.figure(figsize=(10, 6))
-    sns.scatterplot(data=merged_df, x='avgtemp_c', y='daily_crz_entries', hue='weather_category', 
-                    palette='Set1', s=100, edgecolor='black')
-    sns.regplot(data=merged_df, x='avgtemp_c', y='daily_crz_entries', scatter=False, 
-                color='black', line_kws={'linewidth': 1.5})
-    plt.title('Daily Traffic Volume vs. Average Temperature')
-    plt.xlabel('Average Temperature (°C)')
-    plt.ylabel('Daily CRZ Entries')
-    plt.legend(title='Weather Category', bbox_to_anchor=(1.05, 1), loc='upper left')
-    plt.tight_layout()
+    for c_label in cluster_profiles_line.index:
+        plt.plot(hour_cols, cluster_profiles_line.loc[c_label, hour_cols], label=f"Cluster {c_label}")
+    plt.xlabel("Hour of Day")
+    plt.ylabel("Average CRZ Entries")
+    plt.title("Average Daily Traffic Pattern by Enhanced Clusters")
+    plt.legend()
     plt.show()
     st.pyplot(plt)
