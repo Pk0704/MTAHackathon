@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
+import matplotlib.pyplot as plt
 import joblib
 
 # Load and prep data
@@ -60,3 +61,37 @@ print(f"🎯 Final MAE: {mae_list[-1]:.2f}, Final R²: {r2_list[-1]:.4f}")
 
 joblib.dump(forest, "crz_model.pkl")
 joblib.dump(preprocessor, "preprocessor.pkl")
+
+import seaborn as sns
+
+y_pred = forest.predict(preprocessor.transform(X_test))
+
+plt.figure(figsize=(6, 6))
+sns.scatterplot(x=y_test, y=y_pred, alpha=0.5)
+plt.xlabel("Actual CRZ Entries")
+plt.ylabel("Predicted CRZ Entries")
+plt.title("Actual vs Predicted CRZ Entries")
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')  # y=x line
+plt.tight_layout()
+plt.show()
+
+
+residuals = y_test - y_pred
+
+plt.figure(figsize=(8, 4))
+sns.histplot(residuals, kde=True)
+plt.title("Distribution of Prediction Errors (Residuals)")
+plt.xlabel("Residual (Actual - Predicted)")
+plt.tight_layout()
+plt.show()
+
+X_test_df = X_test.copy()
+X_test_df["Predicted Entries"] = y_pred
+location_avg = X_test_df.groupby("Detection Group")["Predicted Entries"].mean().sort_values(ascending=False)
+
+plt.figure(figsize=(10, 5))
+sns.barplot(x=location_avg.values, y=location_avg.index)
+plt.title("Average Predicted CRZ Entries per Detection Group")
+plt.xlabel("Predicted Entries")
+plt.tight_layout()
+plt.show()
