@@ -38,16 +38,26 @@ toll_rates = {
 # ---------------------------
 # Define Vehicle Groups Based on "Vehicle Class"
 # ---------------------------
-cars = df[df['Vehicle Class'] == '1 - Cars, Pickups and Vans']
-trucks = df[df['Vehicle Class'].isin(['2 - Single-Unit Trucks', '3 - Multi-Unit Trucks'])]
-motorcycles = df[df['Vehicle Class'] == '5 - Motorcycles']
+# We now separate into six groups with contracted names:
+# "TLC Taxi/FHV", "5 - Motorcycles" (→ motorcycles),
+# "4 - Buses" (→ buses),
+# "3 - Multi-Unit Trucks" (→ Trucks (multi)),
+# "2 - Single-Unit Trucks" (→ trucks (Single)),
+# "1 - Cars, Pickups and Vans" (→ cars, pickups, vans)
 taxis = df[df['Vehicle Class'] == 'TLC Taxi/FHV']
+motorcycles = df[df['Vehicle Class'] == '5 - Motorcycles']
+buses = df[df['Vehicle Class'] == '4 - Buses']
+trucks_multi = df[df['Vehicle Class'] == '3 - Multi-Unit Trucks']
+trucks_single = df[df['Vehicle Class'] == '2 - Single-Unit Trucks']
+cars = df[df['Vehicle Class'] == '1 - Cars, Pickups and Vans']
 
 print("\nTotal CRZ Entries (weighted counts) by Vehicle Group:")
-print("Cars:", cars['CRZ Entries'].sum())
-print("Trucks (Lorries):", trucks['CRZ Entries'].sum())
+print("TLC Taxi/FHV:", taxis['CRZ Entries'].sum())
 print("Motorcycles:", motorcycles['CRZ Entries'].sum())
-print("Taxis:", taxis['CRZ Entries'].sum())
+print("Buses:", buses['CRZ Entries'].sum())
+print("Trucks (multi):", trucks_multi['CRZ Entries'].sum())
+print("Trucks (Single):", trucks_single['CRZ Entries'].sum())
+print("Cars, Pickups, Vans:", cars['CRZ Entries'].sum())
 
 # ---------------------------
 # PART 1: Weighted Analysis of Entry Times (Hour of Day)
@@ -58,29 +68,36 @@ def weighted_avg_hour(data):
         return None  # Avoid division by zero
     return (data['Hour of Day'] * data['CRZ Entries']).sum() / total_entries
 
-avg_hour_cars = weighted_avg_hour(cars)
-avg_hour_trucks = weighted_avg_hour(trucks)
-avg_hour_motorcycles = weighted_avg_hour(motorcycles)
 avg_hour_taxis = weighted_avg_hour(taxis)
+avg_hour_motorcycles = weighted_avg_hour(motorcycles)
+avg_hour_buses = weighted_avg_hour(buses)
+avg_hour_trucks_multi = weighted_avg_hour(trucks_multi)
+avg_hour_trucks_single = weighted_avg_hour(trucks_single)
+avg_hour_cars = weighted_avg_hour(cars)
 
 print("\nWeighted Average Entry Hour:")
-print("Cars:", avg_hour_cars)
-print("Trucks (Lorries):", avg_hour_trucks)
+print("TLC Taxi/FHV:", avg_hour_taxis)
 print("Motorcycles:", avg_hour_motorcycles)
-print("Taxis:", avg_hour_taxis)
+print("Buses:", avg_hour_buses)
+print("Trucks (multi):", avg_hour_trucks_multi)
+print("Trucks (Single):", avg_hour_trucks_single)
+print("Cars, Pickups, Vans:", avg_hour_cars)
 
-# Plot the weighted histogram for vehicle entries by hour
 plt.figure(figsize=(10, 6))
 bins = range(0, 25)  # Hours 0 to 24
 
-plt.hist(cars['Hour of Day'], bins=bins, weights=cars['CRZ Entries'], 
-         alpha=0.5, label='Cars', edgecolor='black')
-plt.hist(trucks['Hour of Day'], bins=bins, weights=trucks['CRZ Entries'], 
-         alpha=0.5, label='Trucks (Lorries)', edgecolor='black')
+plt.hist(taxis['Hour of Day'], bins=bins, weights=taxis['CRZ Entries'], 
+         alpha=0.5, label='TLC Taxi/FHV', edgecolor='black')
 plt.hist(motorcycles['Hour of Day'], bins=bins, weights=motorcycles['CRZ Entries'], 
          alpha=0.5, label='Motorcycles', edgecolor='black')
-plt.hist(taxis['Hour of Day'], bins=bins, weights=taxis['CRZ Entries'], 
-         alpha=0.5, label='Taxis', edgecolor='black')
+plt.hist(buses['Hour of Day'], bins=bins, weights=buses['CRZ Entries'], 
+         alpha=0.5, label='Buses', edgecolor='black')
+plt.hist(trucks_multi['Hour of Day'], bins=bins, weights=trucks_multi['CRZ Entries'], 
+         alpha=0.5, label='Trucks (multi)', edgecolor='black')
+plt.hist(trucks_single['Hour of Day'], bins=bins, weights=trucks_single['CRZ Entries'], 
+         alpha=0.5, label='Trucks (Single)', edgecolor='black')
+plt.hist(cars['Hour of Day'], bins=bins, weights=cars['CRZ Entries'], 
+         alpha=0.5, label='Cars, Pickups, Vans', edgecolor='black')
 
 plt.xlabel("Hour of Day")
 plt.ylabel("Number of Entries (Weighted by CRZ Entries)")
@@ -90,34 +107,36 @@ plt.xticks(bins)
 plt.show()
 
 # ---------------------------
-# STACKED BAR CHART: Proportion of CRZ Entries by Vehicle Type per Hour
+# PART Y: Vehicle Time Period Proportion Analysis
 # ---------------------------
-# Aggregate CRZ Entries by Hour for each vehicle group.
-hours = range(0, 24)  # Hours 0 to 23
-df_cars = cars.groupby('Hour of Day')['CRZ Entries'].sum()
-df_trucks = trucks.groupby('Hour of Day')['CRZ Entries'].sum()
-df_motorcycles = motorcycles.groupby('Hour of Day')['CRZ Entries'].sum()
-df_taxis = taxis.groupby('Hour of Day')['CRZ Entries'].sum()
+# Group CRZ Entries by Time Period and Vehicle Class and then contract the names.
+grouped = df.groupby(["Time Period", "Vehicle Class"])["CRZ Entries"].sum().reset_index()
+# Map the detailed vehicle classes to contracted names.
+vehicle_class_map = {
+    "TLC Taxi/FHV": "TLC Taxi/FHV",
+    "5 - Motorcycles": "motorcycles",
+    "4 - Buses": "buses",
+    "3 - Multi-Unit Trucks": "Trucks (multi)",
+    "2 - Single-Unit Trucks": "trucks (Single)",
+    "1 - Cars, Pickups and Vans": "cars, pickups, vans"
+}
+grouped["Vehicle Class"] = grouped["Vehicle Class"].map(vehicle_class_map)
+pivot = grouped.pivot(index="Vehicle Class", columns="Time Period", values="CRZ Entries").fillna(0)
+# For each vehicle class, compute the proportion for each time period (so they add to 1).
+pivot_prop = pivot.div(pivot.sum(axis=1), axis=0)
+print("\nVehicle Time Period Proportions (Contracted Names):")
+print(pivot_prop)
 
-# Create a DataFrame indexed by hour (ensuring all hours are present).
-stack_df = pd.DataFrame({
-    'Cars': df_cars,
-    'Trucks': df_trucks,
-    'Motorcycles': df_motorcycles,
-    'Taxis': df_taxis
-}).reindex(hours, fill_value=0)
-
-# Calculate total entries per hour and convert counts to proportions.
-stack_df['Total'] = stack_df.sum(axis=1)
-stack_df_ratio = stack_df[['Cars', 'Trucks', 'Motorcycles', 'Taxis']].div(stack_df['Total'], axis=0)
-
+# Plot a grouped bar chart: vehicle class on x-axis, two bars per class (Peak and Overnight)
 plt.figure(figsize=(10, 6))
-stack_df_ratio.plot(kind='bar', stacked=True, colormap='Set1', width=0.8)
-plt.xlabel("Hour of Day", fontsize=12)
-plt.ylabel("Proportion of CRZ Entries", fontsize=12)
-plt.title("Stacked Proportions of CRZ Entries by Vehicle Type", fontsize=14)
-plt.xticks(rotation=0)  # Horizontal x-axis labels
-plt.legend(title="Vehicle Type", bbox_to_anchor=(1.05, 1), loc='upper left')
+# We'll use a custom color set (e.g., yellow and blue)
+colors = {"Peak": "Crimson", "Overnight": "blue"}
+pivot_prop.plot(kind="bar", stacked=False, color=[colors.get(tp, "gray") for tp in pivot_prop.columns], figsize=(10,6))
+plt.xlabel("Vehicle Class", fontsize=12)
+plt.ylabel("Proportion of Total CRZ Entries", fontsize=12)
+plt.title("Proportion of CRZ Entries by Time Period for Each Vehicle Class", fontsize=14)
+plt.xticks(rotation=0)  # Rotate x-axis labels horizontally.
+plt.legend(title="Time Period", bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.tight_layout()
 plt.show()
 
@@ -133,23 +152,25 @@ def time_period_distribution(data, group_name):
     print(dist / total)
     return dist
 
-dist_cars = time_period_distribution(cars, "Cars")
-dist_trucks = time_period_distribution(trucks, "Trucks (Lorries)")
-dist_motorcycles = time_period_distribution(motorcycles, "Motorcycles")
-dist_taxis = time_period_distribution(taxis, "Taxis")
+dist_taxis = time_period_distribution(taxis, "TLC Taxi/FHV")
+dist_motorcycles = time_period_distribution(motorcycles, "motorcycles")
+dist_buses = time_period_distribution(buses, "buses")
+dist_trucks_multi = time_period_distribution(trucks_multi, "Trucks (multi)")
+dist_trucks_single = time_period_distribution(trucks_single, "trucks (Single)")
+dist_cars = time_period_distribution(cars, "cars, pickups, vans")
 
-fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+fig, axes = plt.subplots(2, 3, figsize=(16, 10))
 axes = axes.flatten()
-groups = [('Cars', dist_cars), 
-          ('Trucks (Lorries)', dist_trucks), 
-          ('Motorcycles', dist_motorcycles), 
-          ('Taxis', dist_taxis)]
-
+groups = [('TLC Taxi/FHV', dist_taxis), 
+          ('motorcycles', dist_motorcycles), 
+          ('buses', dist_buses), 
+          ('Trucks (multi)', dist_trucks_multi), 
+          ('trucks (Single)', dist_trucks_single), 
+          ('cars, pickups, vans', dist_cars)]
 for ax, (group_name, dist) in zip(axes, groups):
     dist.plot(kind='bar', ax=ax, title=f"{group_name} Time Period Distribution")
     ax.set_xlabel("Time Period")
     ax.set_ylabel("Total CRZ Entries")
-
 plt.tight_layout()
 plt.show()
 
@@ -158,120 +179,14 @@ plt.show()
 # PART 3: Congestion Relief Zone Efficiency Analysis (Revenue Related)
 # ---------------------------
 print("\n--- Congestion Relief Zone Efficiency Analysis ---")
-
-# Define hypothetical capacities (throughput capacity per time block) for each detection group.
-capacity_dict = {
-    'Brooklyn Bridge': 150,
-    'West Side Highway at 60th St': 120,
-    'West 60th St': 100,
-    'Queensboro Bridge': 130,
-    'Queens Midtown Tunnel': 110,
-    'Lincoln Tunnel': 140,
-    'Holland Tunnel': 130,
-    'FDR Drive at 60th St': 100,
-    'East 60th St': 90,
-    'Williamsburg Bridge': 110,
-    'Manhattan Bridge': 120,
-    'Hugh L. Carey Tunnel': 100
-}
-
-default_peak_toll = toll_rates['Passenger']['Peak']
-
-df_peak = df[df['Time Period'].str.lower() == 'peak']
-
-if df_peak.empty:
-    print("No peak time data available. Ensure that the 'Time Period' column is correctly labeled for peak periods.")
-else:
-    efficiency_records = []
-    groups_peak = df_peak.groupby('Detection Group')
-    for group_name, group_data in groups_peak:
-        if group_name in capacity_dict:
-            num_time_blocks = group_data.shape[0]
-            total_excluded = group_data['Excluded Roadway Entries'].sum()
-            total_capacity = capacity_dict[group_name] * num_time_blocks
-            utilization_ratio = total_excluded / total_capacity if total_capacity > 0 else None
-            underutilization = total_capacity - total_excluded if total_excluded < total_capacity else 0
-            opportunity_cost = underutilization * default_peak_toll
-            efficiency_records.append({
-                'Detection Group': group_name,
-                'Num Time Blocks': num_time_blocks,
-                'Total Excluded Entries': total_excluded,
-                'Total Capacity': total_capacity,
-                'Utilization Ratio': utilization_ratio,
-                'Underutilization': underutilization,
-                'Opportunity Cost': opportunity_cost
-            })
-    efficiency_df = pd.DataFrame(efficiency_records)
-    print("\nEfficiency Summary (Peak Time Only):")
-    print(efficiency_df)
-    
-    underutilization_vector = efficiency_df['Underutilization'].tolist()
-    l2_norm = math.sqrt(sum(x**2 for x in underutilization_vector))
-    print("\nAggregate Inefficiency (L2 Norm of Underutilization):", l2_norm)
-    
-    alternatives = {
-        'Brooklyn Bridge': 'Manhattan Bridge',
-        'Manhattan Bridge': 'Brooklyn Bridge',
-        'Queensboro Bridge': 'Lincoln Tunnel',
-        'Queens Midtown Tunnel': 'Lincoln Tunnel',
-        'Lincoln Tunnel': 'Holland Tunnel',
-        'Holland Tunnel': 'Lincoln Tunnel'
-    }
-    
-    print("\nAlternative Entry Suggestions (for Congested Points):")
-    congestion_threshold = 1.0
-    for idx, row in efficiency_df.iterrows():
-        if row['Utilization Ratio'] >= congestion_threshold:
-            current_group = row['Detection Group']
-            alt = alternatives.get(current_group, None)
-            if alt:
-                print(f"- {current_group} is congested (Utilization Ratio: {row['Utilization Ratio']:.2f}).")
-                print(f"  Consider entering via {alt} instead.")
-            else:
-                print(f"- {current_group} is congested (Utilization Ratio: {row['Utilization Ratio']:.2f}).")
-                print("  No alternative entry suggestion available.")
-                
-    # ---------------------------
-    # PART 4: Congestion Equity Index Analysis (Revenue Related)
-    # ---------------------------
-    print("\n--- Congestion Equity Index Analysis ---")
-    group_to_region = df_peak.groupby('Detection Group')['Detection Region'].first().to_dict()
-    efficiency_df['Detection Region'] = efficiency_df['Detection Group'].map(group_to_region)
-    
-    region_efficiency = efficiency_df.groupby('Detection Region').agg({
-        'Total Capacity': 'sum',
-        'Total Excluded Entries': 'sum',
-        'Opportunity Cost': 'sum'
-    }).reset_index()
-    
-    region_entries = df_peak.groupby('Detection Region')['CRZ Entries'].sum().reset_index().rename(columns={'CRZ Entries': 'Total CRZ Entries'})
-    
-    region_summary = pd.merge(region_efficiency, region_entries, on='Detection Region', how='left')
-    
-    region_summary['Fairness Coefficient'] = region_summary['Opportunity Cost'] / region_summary['Total CRZ Entries']
-    
-    print("\nCongestion Equity Index (Fairness Coefficient by Region):")
-    print(region_summary[['Detection Region', 'Total CRZ Entries', 'Opportunity Cost', 'Fairness Coefficient']])
-    
-    plt.figure(figsize=(10, 6))
-    plt.bar(region_summary['Detection Region'], region_summary['Fairness Coefficient'], color='skyblue', edgecolor='black')
-    plt.xlabel("Detection Region (Community)")
-    plt.ylabel("Fairness Coefficient (Opportunity Cost per CRZ Entry)")
-    plt.title("Congestion Equity Index by Detection Region")
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
-    
-    print("\nIn my view, the Congestion Equity Index is a particularly cool point of analysis, as it provides insight into how congestion pricing affects different communities and reveals potential inequities in the distribution of congestion costs.")
+...
 '''
 
 # ---------------------------
 # PART X: Temporal Signature Identification
 # ---------------------------
 print("\n--- Temporal Signature Identification ---")
-# The goal here is to detect distinctive daily traffic patterns that could signal holidays, special events, or typical weekdays.
-# We aggregate the data by Toll Date and Hour of Day to create a daily "signature" vector.
-
+# Aggregate the data by Toll Date and Hour of Day to create a daily "signature" vector.
 daily_pattern = df.groupby(['Toll Date', 'Hour of Day'])['CRZ Entries'].sum().unstack(fill_value=0)
 print("\nDaily Traffic Pattern (first 5 rows):")
 print(daily_pattern.head())
