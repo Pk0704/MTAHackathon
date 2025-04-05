@@ -427,6 +427,10 @@ def cluster_labels(df):
     hourly_std = hourly_pivot.std(axis=1)
     growth_rate = daily_volume.pct_change().fillna(0)
     is_weekend = (daily_volume.index.weekday >= 5).astype(int)
+
+    API_KEY = "b1b230ed8664410080803403250504"
+    BASE_URL = "http://api.weatherapi.com/v1/history.json"
+
     
     
     def fetch_weather(date_str, api_key=API_KEY, location="New York"):
