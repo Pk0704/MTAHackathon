@@ -1,10 +1,14 @@
+import folium
+import pandas as pd
 import streamlit as st
 import polars as pl
 import json
 from functions import show_interactive_map, figure_one, display_vehicles, figure_two, figure_three, traffic_vs_weather, cluster_labels
+import pydeck as pdk
+import streamlit_folium as st_folium
 
 
-df=pl.read_csv('data.csv')
+df=pl.read_csv('MTA_Congestion_Relief_Zone_Vehicle_Entries__Beginning_2025_20250404.csv')
 
 # Set page configuration
 st.set_page_config(
@@ -130,6 +134,7 @@ elif show_map:
                         "Longitude": [v[1] for v in location_coords.values()],
                     }
                 )
+                # Debugging: Display loaded location coordinates
                 return location_df
             except Exception as e:
                 st.error(f"Error loading location coordinates: {e}")
@@ -145,9 +150,11 @@ elif show_map:
                 
                 # Merge with location data
                 df_merged = df.join(location_df, on="Detection Group", how="left")
-                
+                # Debugging: Display merged DataFrame
+
                 # Drop rows with missing Latitude/Longitude
                 df_map = df_merged.filter(df_merged["Latitude"].is_not_null() & df_merged["Longitude"].is_not_null())
+                # Debugging: Display preprocessed map data
                 return df_map
             except Exception as e:
                 st.error(f"Error preprocessing map data: {e}")
@@ -163,14 +170,30 @@ elif show_map:
             if df_map is None or df_map.is_empty():
                 st.error("No valid data available for the map.")
             else:
-                # Convert back to Pandas for Streamlit map rendering
+                # Convert back to Pandas for rendering
                 df_map_pandas = df_map.to_pandas()
-                
-                # Sample data for rendering to improve performance
-                if not df_map_pandas.empty:
-                    df_map_pandas_sampled = df_map_pandas.sample(n=min(100, len(df_map_pandas)), random_state=42)
-                    
-                    # Display the map
-                    show_interactive_map(df_map_pandas_sampled)  # Display the map
-                else:
-                    st.error("Filtered map data is empty.")
+                # Debugging: Display Pandas DataFrame for map
+
+                # Aggregate data by location and detection group
+                aggregated_data = (
+                    df_map_pandas.groupby(["Latitude", "Longitude", "Detection Group"])["CRZ Entries"]
+                    .sum()
+                    .reset_index()
+                )
+                # Debugging: Display aggregated data
+
+                # Create a Folium map
+                m = folium.Map(location=[40.75, -73.97], zoom_start=12)
+
+                # Add markers to the map
+                for _, row in aggregated_data.iterrows():
+                    if pd.notna(row["Latitude"]) and pd.notna(row["Longitude"]):
+                        popup = f"{row['Detection Group']}<br>Total CRZ Entries: {row['CRZ Entries']}"
+                        folium.Marker(
+                            location=[row["Latitude"], row["Longitude"]],
+                            popup=popup,
+                            icon=folium.Icon(color="green", icon="car", prefix="fa")  # Green car icon
+                        ).add_to(m)
+
+                # Render the map in Streamlit
+                st_folium.folium_static(m, width=800, height=500)
