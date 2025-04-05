@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import json
 from functions import (
     plot_traffic_by_detection_region,
     show_interactive_map
@@ -19,13 +20,8 @@ st.write("## Visualizations")
 plot_traffic_by_detection_region(df)
 
 # Add coordinates to your DataFrame
-location_coords = {
-    "Brooklyn Bridge": (40.7061, -73.9969),
-    "West Side Highway at 60th St": (40.7721, -73.9896),
-    "West 60th St": (40.7700, -73.9840),
-    "Queensboro Bridge": (40.7577, -73.9580),
-    "Queens Midtown Tunnel": (40.7440, -73.9712)
-}
+with open("data.json", "r") as f:
+    location_coords = json.load(f)
 
 df["Latitude"] = df["Detection Group"].map(lambda x: location_coords.get(x, (None, None))[0])
 df["Longitude"] = df["Detection Group"].map(lambda x: location_coords.get(x, (None, None))[1])
