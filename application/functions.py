@@ -346,12 +346,12 @@ def figure_three(df):
 def traffic_vs_weather(df):
     """
     Generates an interactive scatter plot of daily traffic volume vs. average temperature,
-    color-coded by weather categories, with an interactive trendline.
+    color-coded by weather categories, with an interactive overall OLS trendline.
     """
     API_KEY = "b1b230ed8664410080803403250504"
     BASE_URL = "http://api.weatherapi.com/v1/history.json"
 
-    def fetch_weather(date_str, api_key=API_KEY, location="New York"):
+    def fetch_weather(date_str, api_key=API_KEY, location="100019"):
         params = {
             "key": api_key,
             "q": location,
@@ -403,10 +403,21 @@ def traffic_vs_weather(df):
     }
     merged_df["weather_category"] = merged_df["condition"].apply(lambda cond: weather_category_map.get(cond, "Neutral"))
 
-    # Convert date column to datetime (if needed elsewhere)
+    # Convert Toll Date to datetime
     merged_df['Toll Date'] = pd.to_datetime(merged_df['Toll Date'], format='%m/%d/%Y')
 
-    # Create interactive scatter plot with a trendline
+    # --- Compute overall OLS regression using statsmodels ---
+    # We'll use avgtemp_c to predict daily_crz_entries
+    X = merged_df[["avgtemp_c"]]
+    X = sm.add_constant(X)  # adds the intercept term
+    y = merged_df["daily_crz_entries"]
+    ols_model = sm.OLS(y, X).fit()
+    merged_df["predicted"] = ols_model.predict(X)
+    overall_r2 = ols_model.rsquared
+    print(ols_model.summary())
+    
+    # Create interactive scatter plot with Plotly Express, computing trendlines only overall
+    # We do not rely on Plotly's internal trendline mechanism for R² display.
     fig = px.scatter(
         merged_df,
         x="avgtemp_c",
@@ -417,18 +428,23 @@ def traffic_vs_weather(df):
             "daily_crz_entries": "Daily CRZ Entries"
         },
         title="Daily Traffic Volume vs. Average Temperature",
-        trendline='ols',  # Ordinary Least Squares trendline
-        trendline_scope= 'overall',
         template="plotly_white"
     )
-
-    # Update marker style for a similar aesthetic
+    
+    # Add the overall OLS regression line as a trace.
+    fig.add_trace(go.Scatter(
+        x=merged_df["avgtemp_c"],
+        y=merged_df["predicted"],
+        mode="lines",
+        name=f"Overall OLS Trendline (R²={overall_r2:.2f})",
+        line=dict(color="black", width=2)
+    ))
+    
+    # Update marker style for a consistent aesthetic.
     fig.update_traces(marker=dict(size=10, line=dict(width=1, color="black")))
     fig.update_layout(legend_title_text="Weather Category", margin=dict(l=0, r=0, t=50, b=0))
-
     
-    
-    # Display the plot in Streamlit
+    # Display the plot in Streamlit.
     st.plotly_chart(fig)
     
 def cluster_labels(df):
