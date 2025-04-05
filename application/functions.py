@@ -1,24 +1,23 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import streamlit.components.v1 as components
 import folium
 from streamlit_folium import st_folium
 import seaborn as sns
 
 
-def show_interactive_map(df):
-    """Displays an interactive folium map with CRZ entries by location."""
-    m = folium.Map(location=[40.75, -73.97], zoom_start=12)
+from folium.plugins import MarkerCluster
 
-    for _, row in df.iterrows():
-        if pd.notna(row["Latitude"]) and pd.notna(row["Longitude"]):
-            popup = f"{row['Detection Group']}<br>CRZ Entries: {row['CRZ Entries']}"
-            folium.Marker(
-                location=[row["Latitude"], row["Longitude"]],
-                popup=popup,
-                icon=folium.Icon(color="blue", icon="car", prefix="fa")
-            ).add_to(m)
+def show_interactive_map(df_map):
+    m = folium.Map(location=[40.75, -73.97], zoom_start=12)
+    marker_cluster = MarkerCluster().add_to(m)
+
+    for _, row in df_map.iterrows():
+        folium.Marker(
+            location=[row["Latitude"], row["Longitude"]],
+            popup=row["Detection Group"],
+            tooltip=row["Detection Group"],
+        ).add_to(marker_cluster)
 
     st_folium(m, width=800, height=500)
     
@@ -67,8 +66,40 @@ def display_time_series(data, location):
     # Display the bar chart
     st.bar_chart(vehicle_counts)
 
+def figure_one(df):
+    """
+    Creates a histogram to visualize the weighted vehicle entries by hour of day.
+    It groups the data based on vehicle classes and plots the distributions for cars, trucks,
+    motorcycles, and taxis separately.
+    """
+    
+    cars = df[df['Vehicle Class'] == '1 - Cars, Pickups and Vans']
+    trucks = df[df['Vehicle Class'].isin(['2 - Single-Unit Trucks', '3 - Multi-Unit Trucks'])]
+    motorcycles = df[df['Vehicle Class'] == '5 - Motorcycles']
+    taxis = df[df['Vehicle Class'] == 'TLC Taxi/FHV']
+
+    plt.figure(figsize=(10, 6))
+    bins = range(0, 25)  # Hours 0 to 24
+
+    plt.hist(cars['Hour of Day'], bins=bins, weights=cars['CRZ Entries'], 
+            alpha=0.5, label='Cars', edgecolor='black')
+    plt.hist(trucks['Hour of Day'], bins=bins, weights=trucks['CRZ Entries'], 
+            alpha=0.5, label='Trucks (Lorries)', edgecolor='black')
+    plt.hist(motorcycles['Hour of Day'], bins=bins, weights=motorcycles['CRZ Entries'], 
+            alpha=0.5, label='Motorcycles', edgecolor='black')
+    plt.hist(taxis['Hour of Day'], bins=bins, weights=taxis['CRZ Entries'], 
+            alpha=0.5, label='Taxis', edgecolor='black')
+
+    plt.xlabel("Hour of Day")
+    plt.ylabel("Number of Entries (Weighted by CRZ Entries)")
+    plt.title("Weighted Vehicle Entries by Hour of Day")
+    plt.legend()
+    plt.xticks(bins)
+    st.pyplot(plt)
+
 
 
 # Load the data
-data = pd.read_csv('data.csv')
-display_vehicles(data, 'Brooklyn Bridge')
+data = pd.read_csv('MTA_Congestion_Relief_Zone_Vehicle_Entries__Beginning_2025_20250404.csv')
+figure_one(data)
+#display_vehicles(data, 'Brooklyn Bridge')
