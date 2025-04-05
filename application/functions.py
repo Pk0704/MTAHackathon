@@ -412,15 +412,16 @@ def traffic_vs_weather(df):
 
     # Convert date column to datetime (if needed elsewhere)
     merged_df['Toll Date'] = pd.to_datetime(merged_df['Toll Date'], format='%m/%d/%Y')
+    features= ["avgtemp_c", "totalprecip_mm", "condition"]
 
     # Create interactive scatter plot with a trendline
     fig = px.scatter(
         merged_df,
-        x="avgtemp_c",
+        x='avgtemp_c',
         y="daily_crz_entries",
         color="weather_category",
         labels={
-            "avgtemp_c": "Average Temperature (°C)",
+            "avgtemp_c": "Average Temperature (°C)", 
             "daily_crz_entries": "Daily CRZ Entries"
         },
         title="Daily Traffic Volume vs. Average Temperature",
