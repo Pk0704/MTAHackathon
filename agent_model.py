@@ -7,9 +7,9 @@ with open("data.csv", "r") as f:
     csv_data = f.read()
 df = pd.read_csv("data.csv")
 
-print("Here's a preview of your CSV:\n")
+print("Here's a preview of the CSV:\n")
 print(df.head(), "\n")
-print("These are the columns in your CSV:\n")
+print("These are the columns in the CSV:\n")
 print(", ".join(df.columns))
 
 user_request = input(
