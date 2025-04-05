@@ -146,7 +146,7 @@ elif show_map:
                 )
                 col1, _ = st.columns([1, 4])  # Left column is smaller
                 with col1:
-                    style_choice = st.selectbox("Choose map style:", ["Satellite", "Light", "Standard"])
+                    style_choice = st.selectbox("Choose map style:", ["Satellite", "Standard", "Light","Dark"])
                 # Generate and display the map
                 m = generate_interactive_map(aggregated_data, style=style_choice)
                 folium_static(m)

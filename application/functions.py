@@ -55,11 +55,15 @@ def generate_interactive_map(aggregated_data, style='Satellite'):
             'tiles': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
             'attr': 'Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, etc.'
         },
-        'White': {
+        'Light': {
             'tiles': 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
             'attr': '&copy; <a href="https://carto.com/">CARTO</a>'
         },
-        'Regular': {
+        "Dark": {
+            "tiles": "https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png",
+            "attr": "© OpenStreetMap contributors © CARTO"
+        },
+        'Standard': {
             'tiles': 'OpenStreetMap',
             'attr': None
         }
