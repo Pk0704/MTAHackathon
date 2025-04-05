@@ -412,26 +412,26 @@ def traffic_vs_weather(df):
 
     # Convert date column to datetime (if needed elsewhere)
     merged_df['Toll Date'] = pd.to_datetime(merged_df['Toll Date'], format='%m/%d/%Y')
-    features= ["avgtemp_c", "totalprecip_mm", "condition"]
+    features = ["avgtemp_c", "totalprecip_mm", "condition"]
 
-    # Create interactive scatter plot with a trendline
-    fig = px.scatter(
+    # Create interactive 3D scatter plot with a trendline
+    fig = px.scatter_3d(
         merged_df,
         x='avgtemp_c',
-        y="daily_crz_entries",
-        color="weather_category",
+        y='totalprecip_mm',
+        z='daily_crz_entries',
+        color='weather_category',
         labels={
-            "avgtemp_c": "Average Temperature (°C)", 
+            "avgtemp_c": "Average Temperature (°C)",
+            "totalprecip_mm": "Total Precipitation (mm)",
             "daily_crz_entries": "Daily CRZ Entries"
         },
-        title="Daily Traffic Volume vs. Average Temperature",
-        trendline='ols',  # Ordinary Least Squares trendline
-        trendline_scope= 'overall',
+        title="Daily Traffic Volume vs. Weather Conditions (3D)",
         template="plotly_white"
     )
 
-    # Update marker style for a similar aesthetic
-    fig.update_traces(marker=dict(size=10, line=dict(width=1, color="black")))
+    # Update marker style for better visualization
+    fig.update_traces(marker=dict(size=5, line=dict(width=0.5, color="black")))
     fig.update_layout(legend_title_text="Weather Category", margin=dict(l=0, r=0, t=50, b=0))
     
     # Display the plot in Streamlit
