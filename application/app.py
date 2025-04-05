@@ -4,7 +4,7 @@ import json
 from functions import show_interactive_map, figure_one, display_vehicles, figure_two, figure_three, traffic_vs_weather, cluster_labels
 
 
-df=pl.read_csv('MTA_Congestion_Relief_Zone_Vehicle_Entries__Beginning_2025_20250404.csv')
+df=pl.read_csv('data.csv')
 
 # Set page configuration
 st.set_page_config(
@@ -52,7 +52,7 @@ st.markdown(
 
 # Title and description
 st.markdown("<h1 style='text-align: center; color: #4CAF50;'>MTA CRZ Data Dashboard</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #000000;'>Explore traffic and weather data insights for better decision-making.</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #FFFFFF;'>Explore traffic and weather data insights for better decision-making.</p>", unsafe_allow_html=True)
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
@@ -86,7 +86,7 @@ if visualization_option == "Raw Data" and not show_map:
 
 
 # Visualizations Section
-elif visualization_option != "None":
+elif visualization_option != "None" and not show_map:
     st.write("## Visualizations")
     # Create a placeholder for the visualization
     visualization_placeholder = st.empty()
@@ -119,43 +119,58 @@ elif show_map:
     with st.container():
         @st.cache_data
         def load_location_coords():
-            with open("detection_groups.json", "r") as f:
-                location_coords = json.load(f)
-            # Convert to Polars DataFrame
-            location_df = pl.DataFrame(
-                {
-                    "Detection Group": list(location_coords.keys()),
-                    "Latitude": [v[0] for v in location_coords.values()],
-                    "Longitude": [v[1] for v in location_coords.values()],
-                }
-            )
-            return location_df
+            try:
+                with open("detection_groups.json", "r") as f:
+                    location_coords = json.load(f)
+                # Convert to Polars DataFrame
+                location_df = pl.DataFrame(
+                    {
+                        "Detection Group": list(location_coords.keys()),
+                        "Latitude": [v[0] for v in location_coords.values()],
+                        "Longitude": [v[1] for v in location_coords.values()],
+                    }
+                )
+                return location_df
+            except Exception as e:
+                st.error(f"Error loading location coordinates: {e}")
+                return None
 
         @st.cache_data
         def preprocess_map_data(df, location_df):
-            # Check if df is already a Polars DataFrame
-            if not isinstance(df, pl.DataFrame):
-                # Convert Pandas DataFrame to Polars DataFrame
-                df = pl.from_pandas(df)
-            
-            # Merge with location data
-            df_merged = df.join(location_df, on="Detection Group", how="left")
-            
-            # Drop rows with missing Latitude/Longitude
-            df_map = df_merged.filter(df_merged["Latitude"].is_not_null() & df_merged["Longitude"].is_not_null())
-            return df_map
+            try:
+                # Check if df is already a Polars DataFrame
+                if not isinstance(df, pl.DataFrame):
+                    # Convert Pandas DataFrame to Polars DataFrame
+                    df = pl.from_pandas(df)
+                
+                # Merge with location data
+                df_merged = df.join(location_df, on="Detection Group", how="left")
+                
+                # Drop rows with missing Latitude/Longitude
+                df_map = df_merged.filter(df_merged["Latitude"].is_not_null() & df_merged["Longitude"].is_not_null())
+                return df_map
+            except Exception as e:
+                st.error(f"Error preprocessing map data: {e}")
+                return None
 
         # Load location coordinates
         location_df = load_location_coords()
-        
-        # Preprocess map data
-        df_map = preprocess_map_data(df, location_df)
-        
-        # Convert back to Pandas for Streamlit map rendering
-        df_map_pandas = df_map.to_pandas()
-        
-        # Sample data for rendering to improve performance
-        df_map_pandas_sampled = df_map_pandas.sample(n=5000, random_state=42)  # Limit to 5000 points
-        
-        # Display the map
-        show_interactive_map(df_map_pandas_sampled)  # Display the map
+        if location_df is None:
+            st.error("Failed to load location coordinates.")
+        else:
+            # Preprocess map data
+            df_map = preprocess_map_data(df, location_df)
+            if df_map is None or df_map.is_empty():
+                st.error("No valid data available for the map.")
+            else:
+                # Convert back to Pandas for Streamlit map rendering
+                df_map_pandas = df_map.to_pandas()
+                
+                # Sample data for rendering to improve performance
+                if not df_map_pandas.empty:
+                    df_map_pandas_sampled = df_map_pandas.sample(n=min(100, len(df_map_pandas)), random_state=42)
+                    
+                    # Display the map
+                    show_interactive_map(df_map_pandas_sampled)  # Display the map
+                else:
+                    st.error("Filtered map data is empty.")
