@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from perspective import Table
+import perspective
 import streamlit.components.v1 as components
 import folium
 from streamlit_folium import st_folium
@@ -36,7 +36,7 @@ def display_vehicles(data, location):
     df = data[data['Detection Group'] == location]
     
     # Create a Perspective table using the factory function
-    table = Table(df)
+    table = Table(df.to_dict(orient="records"))
 
     # Generate HTML/JS for the Perspective viewer
     html_template = """
