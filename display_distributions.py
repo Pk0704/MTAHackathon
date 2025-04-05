@@ -1,7 +1,7 @@
-from perspective import PerspectiveViewer
-import streamlit.components.v1 as components
-import streamlit as st
 import pandas as pd
+import streamlit as st
+from perspective import Table
+import streamlit.components.v1 as components
 
 data=pd.read_csv('data.csv')
 
@@ -9,17 +9,24 @@ def display_vehicles(data, location):
     # Filter data by location
     df = data[data['Detection Group'] == location]
     
-    # Display the filtered data
-    st.write("Distributions: ")
-    
-    # Create a Perspective table
-    perspective_widget = PerspectiveViewer(df)
-    perspective_widget.view = "y_bar"  # Set the view to a bar chart
-    perspective_widget.columns = ["Vehicle Class", "Count"]  # Specify columns
-    perspective_widget.row_pivots = ["Vehicle Class"]  # Group by vehicle class
-    
-    # Render the Perspective widget in Streamlit
-    components.html(perspective_widget.to_html(), height=500)
+    # Create a Perspective table using the factory function
+    table = Table(df)
+
+    # Generate HTML/JS for the Perspective viewer
+    html_template = """
+    <link href='https://unpkg.com/@finos/perspective-viewer/dist/css/material.css' rel='stylesheet'>
+    <script src='https://unpkg.com/@finos/perspective-viewer/dist/umd/perspective-viewer.js'></script>
+    <perspective-viewer style="height: 500px; width: 100%;" id="viewer"></perspective-viewer>
+    <script>
+      const viewer = document.getElementById("viewer");
+      const table = perspective.worker().table(%s);
+      viewer.load(table);
+      viewer.restore({group_by: ["Vehicle Class"], columns: ["Count"]});
+    </script>
+    """ % table.to_arrow().to_pybytes().hex()
+
+    # Render in Streamlit
+    components.html(html_template, height=600)
     
 def display_time_series(data, location):
     

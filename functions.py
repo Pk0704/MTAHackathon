@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+from perspective import Table
+import streamlit.components.v1 as components
 
 def plot_hourly_traffic(df):
     """Plot number of entries by hour of day."""
@@ -40,3 +42,47 @@ def plot_vehicle_class_distribution(df):
     ax.pie(vehicle_counts, labels=vehicle_counts.index, autopct="%1.1f%%", startangle=140)
     ax.set_title("Distribution of Vehicle Classes")
     st.pyplot(fig)
+    
+def display_vehicles(data, location):
+    # Filter data by location
+    df = data[data['Detection Group'] == location]
+    
+    # Convert the DataFrame to a list of dictionaries
+    records = df.to_dict(orient='records')
+    
+    # Create a Perspective table using the list of dictionaries
+    table = Table(records)
+
+    # Generate HTML/JS for the Perspective viewer
+    html_template = """
+    <link href='https://unpkg.com/@finos/perspective-viewer/dist/css/material.css' rel='stylesheet'>
+    <script src='https://unpkg.com/@finos/perspective-viewer/dist/umd/perspective-viewer.js'></script>
+    <perspective-viewer style="height: 500px; width: 100%;" id="viewer"></perspective-viewer>
+    <script>
+      const viewer = document.getElementById("viewer");
+      const table = perspective.worker().table(%s);
+      viewer.load(table);
+      viewer.restore({group_by: ["Vehicle Class"], columns: ["Count"]});
+    </script>
+    """ % table.to_arrow().to_pybytes().hex()
+
+    # Render in Streamlit
+    components.html(html_template, height=600)
+
+def display_time_series(data, location):
+    
+    df = data[data['Detection Group'] == location]
+    
+    # Display the filtered data
+    st.write("Distributions: ")
+    
+    # Get the distribution of vehicle classes
+    vehicle_counts = df['Toll Hour'].value_counts()
+    
+    # Display the bar chart
+    st.bar_chart(vehicle_counts)
+    
+    
+    
+data=pd.read_csv('data.csv')
+display_vehicles(data, 'Brooklyn Bridge')
