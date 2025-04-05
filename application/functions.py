@@ -50,18 +50,31 @@ def preprocess_map_data(df, location_df):
 
 def generate_interactive_map(aggregated_data):
     """Render a folium map with CRZ markers."""
-    m = folium.Map(location=[40.75, -73.97], zoom_start=12)
+    m = folium.Map(
+    location=[40.75, -73.97],
+    zoom_start=12,
+    # tiles='Stamen Terrain'
+    tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attr='Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, etc.'
+    )
+
 
     for _, row in aggregated_data.iterrows():
         if pd.notna(row["Latitude"]) and pd.notna(row["Longitude"]):
-            popup = f"{row['Detection Group']}<br>Total CRZ Entries: {row['CRZ Entries']}"
+            popup_html = f"""
+            <div style="font-family: 'Helvetica Neue', sans-serif; font-size: 14px;">
+                <b style="color: #2c3e50;">{row['Detection Group']}</b><br>
+                <span style="color: #16a085;">Total CRZ Entries:</span> <b>{row['CRZ Entries']}</b>
+            </div>
+            """
             folium.Marker(
                 location=[row["Latitude"], row["Longitude"]],
-                popup=popup,
-                icon=folium.Icon(color="green", icon="car", prefix="fa")
+                popup=folium.Popup(popup_html, max_width=300),
+                icon=folium.Icon(color="blue", icon="car", prefix="fa")
             ).add_to(m)
 
     folium_static(m, width=800, height=500)
+
     
 def plot_traffic_by_detection_region(df):
     """Plot total CRZ entries by detection region."""
