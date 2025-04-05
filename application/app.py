@@ -16,7 +16,8 @@ st.dataframe(temp, use_container_width=True, hide_index=True)
 # Visualizations Section
 st.write("## Visualizations")
 with st.container():
-    figure_one(df)  # Display the histogram
+    figure_one(df)
+  # Display the histogram
 
 # Interactive Map Section
 st.write("## Interactive Map")

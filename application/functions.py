@@ -6,18 +6,18 @@ from streamlit_folium import st_folium
 import seaborn as sns
 
 
-from folium.plugins import MarkerCluster
-
-def show_interactive_map(df_map):
+def show_interactive_map(df):
+    """Displays an interactive folium map with CRZ entries by location."""
     m = folium.Map(location=[40.75, -73.97], zoom_start=12)
-    marker_cluster = MarkerCluster().add_to(m)
 
-    for _, row in df_map.iterrows():
-        folium.Marker(
-            location=[row["Latitude"], row["Longitude"]],
-            popup=row["Detection Group"],
-            tooltip=row["Detection Group"],
-        ).add_to(marker_cluster)
+    for _, row in df.iterrows():
+        if pd.notna(row["Latitude"]) and pd.notna(row["Longitude"]):
+            popup = f"{row['Detection Group']}<br>CRZ Entries: {row['CRZ Entries']}"
+            folium.Marker(
+                location=[row["Latitude"], row["Longitude"]],
+                popup=popup,
+                icon=folium.Icon(color="blue", icon="car", prefix="fa")
+            ).add_to(m)
 
     st_folium(m, width=800, height=500)
     
@@ -100,6 +100,4 @@ def figure_one(df):
 
 
 # Load the data
-data = pd.read_csv('MTA_Congestion_Relief_Zone_Vehicle_Entries__Beginning_2025_20250404.csv')
-figure_one(data)
 #display_vehicles(data, 'Brooklyn Bridge')
