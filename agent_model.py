@@ -1,6 +1,5 @@
 from openai import OpenAI
 import pandas as pd
-import os
 
 client = OpenAI(api_key='')
 
@@ -54,5 +53,5 @@ response = client.chat.completions.create(
 )
 
 generated_code = response.choices[0].message.content
-print("\n🎨 Generated Python code:\n")
+print("\nGenerated Python code:\n")
 print(generated_code)
