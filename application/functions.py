@@ -8,18 +8,20 @@ import seaborn as sns
 
 from folium.plugins import MarkerCluster
 
-def show_interactive_map(df_map):
+def show_interactive_map(location_coords):
+    """Displays an interactive folium map with markers from location_coords JSON."""
     m = folium.Map(location=[40.75, -73.97], zoom_start=12)
-    marker_cluster = MarkerCluster().add_to(m)
 
-    for _, row in df_map.iterrows():
-        folium.Marker(
-            location=[row["Latitude"], row["Longitude"]],
-            popup=row["Detection Group"],
-            tooltip=row["Detection Group"],
-        ).add_to(marker_cluster)
+    for group, coords in location_coords.items():
+        lat, lon = coords
+        if lat is not None and lon is not None:
+            folium.Marker(
+                location=[lat, lon],
+                popup=group,
+                icon=folium.Icon(color="blue", icon="info-sign")
+            ).add_to(m)
 
-    st_folium(m, width=800, height=500)
+    st_folium(m, width=800, height=500)   
     
 def plot_traffic_by_detection_region(df):
     """Plot total CRZ entries by detection region."""
