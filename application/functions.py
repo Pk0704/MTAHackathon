@@ -6,24 +6,62 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import folium
-from streamlit_folium import st_folium
+from streamlit_folium import st_folium, folium_static
 import seaborn as sns
+import polars as pl
+import json
+
+@st.cache_data
+def load_location_coords():
+    """Load location coordinates from detection_groups.json."""
+    try:
+        with open("detection_groups.json", "r") as f:
+            location_coords = json.load(f)
+
+        location_df = pl.DataFrame(
+            {
+                "Detection Group": list(location_coords.keys()),
+                "Latitude": [v[0] for v in location_coords.values()],
+                "Longitude": [v[1] for v in location_coords.values()],
+            }
+        )
+        return location_df
+    except Exception as e:
+        st.error(f"Error loading location coordinates: {e}")
+        return None
 
 
-def show_interactive_map(df):
-    """Displays an interactive folium map with CRZ entries by location."""
+@st.cache_data
+def preprocess_map_data(df, location_df):
+    """Merge data with location coordinates and filter valid entries."""
+    try:
+        if not isinstance(df, pl.DataFrame):
+            df = pl.from_pandas(df)
+
+        df_merged = df.join(location_df, on="Detection Group", how="left")
+        df_map = df_merged.filter(
+            df_merged["Latitude"].is_not_null() & df_merged["Longitude"].is_not_null()
+        )
+        return df_map
+    except Exception as e:
+        st.error(f"Error preprocessing map data: {e}")
+        return None
+
+
+def generate_interactive_map(aggregated_data):
+    """Render a folium map with CRZ markers."""
     m = folium.Map(location=[40.75, -73.97], zoom_start=12)
 
-    for group, coords in location_coords.items():
-        lat, lon = coords
-        if lat is not None and lon is not None:
+    for _, row in aggregated_data.iterrows():
+        if pd.notna(row["Latitude"]) and pd.notna(row["Longitude"]):
+            popup = f"{row['Detection Group']}<br>Total CRZ Entries: {row['CRZ Entries']}"
             folium.Marker(
-                location=[lat, lon],
-                popup=group,
-                icon=folium.Icon(color="blue", icon="info-sign")
+                location=[row["Latitude"], row["Longitude"]],
+                popup=popup,
+                icon=folium.Icon(color="green", icon="car", prefix="fa")
             ).add_to(m)
 
-    st_folium(m, width=800, height=500)   
+    folium_static(m, width=800, height=500)
     
 def plot_traffic_by_detection_region(df):
     """Plot total CRZ entries by detection region."""

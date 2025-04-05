@@ -1,7 +1,9 @@
+import folium
+import pandas as pd
 import streamlit as st
 import polars as pl
 import json
-from functions import show_interactive_map, figure_one, display_vehicles, figure_two, figure_three, traffic_vs_weather, cluster_labels
+from functions import load_location_coords, preprocess_map_data, generate_interactive_map, figure_one, display_vehicles, figure_two, figure_three, traffic_vs_weather, cluster_labels
 import pydeck as pdk
 import streamlit_folium as st_folium
 
@@ -125,79 +127,20 @@ elif visualization_option != "None" and not show_map:
 elif show_map:
     st.write("## Interactive Map")
     with st.container():
-        @st.cache_data
-        def load_location_coords():
-            try:
-                with open("detection_groups.json", "r") as f:
-                    location_coords = json.load(f)
-                # Convert to Polars DataFrame
-                location_df = pl.DataFrame(
-                    {
-                        "Detection Group": list(location_coords.keys()),
-                        "Latitude": [v[0] for v in location_coords.values()],
-                        "Longitude": [v[1] for v in location_coords.values()],
-                    }
-                )
-                # Debugging: Display loaded location coordinates
-                return location_df
-            except Exception as e:
-                st.error(f"Error loading location coordinates: {e}")
-                return None
-
-        @st.cache_data
-        def preprocess_map_data(df, location_df):
-            try:
-                # Check if df is already a Polars DataFrame
-                if not isinstance(df, pl.DataFrame):
-                    # Convert Pandas DataFrame to Polars DataFrame
-                    df = pl.from_pandas(df)
-                
-                # Merge with location data
-                df_merged = df.join(location_df, on="Detection Group", how="left")
-                # Debugging: Display merged DataFrame
-
-                # Drop rows with missing Latitude/Longitude
-                df_map = df_merged.filter(df_merged["Latitude"].is_not_null() & df_merged["Longitude"].is_not_null())
-                # Debugging: Display preprocessed map data
-                return df_map
-            except Exception as e:
-                st.error(f"Error preprocessing map data: {e}")
-                return None
-
-        # Load location coordinates
         location_df = load_location_coords()
         if location_df is None:
             st.error("Failed to load location coordinates.")
         else:
-            # Preprocess map data
             df_map = preprocess_map_data(df, location_df)
             if df_map is None or df_map.is_empty():
                 st.error("No valid data available for the map.")
             else:
-                # Convert back to Pandas for rendering
                 df_map_pandas = df_map.to_pandas()
-                # Debugging: Display Pandas DataFrame for map
 
-                # Aggregate data by location and detection group
                 aggregated_data = (
                     df_map_pandas.groupby(["Latitude", "Longitude", "Detection Group"])["CRZ Entries"]
                     .sum()
                     .reset_index()
                 )
-                # Debugging: Display aggregated data
 
-                # Create a Folium map
-                m = folium.Map(location=[40.75, -73.97], zoom_start=12)
-
-                # Add markers to the map
-                for _, row in aggregated_data.iterrows():
-                    if pd.notna(row["Latitude"]) and pd.notna(row["Longitude"]):
-                        popup = f"{row['Detection Group']}<br>Total CRZ Entries: {row['CRZ Entries']}"
-                        folium.Marker(
-                            location=[row["Latitude"], row["Longitude"]],
-                            popup=popup,
-                            icon=folium.Icon(color="green", icon="car", prefix="fa")  # Green car icon
-                        ).add_to(m)
-
-                # Render the map in Streamlit
-                st_folium.folium_static(m, width=800, height=500)
+                generate_interactive_map(aggregated_data)
